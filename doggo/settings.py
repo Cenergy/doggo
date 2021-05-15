@@ -56,12 +56,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # 以上是默认的apps
-    'users.apps.UsersConfig',
-    'api.apps.ApiConfig',
-    'ais.apps.AisConfig',
-    'courses.apps.CoursesConfig',
-    'sources.apps.SourcesConfig',
-    'wechat.apps.WechatConfig',
+    'users',
+    'api',
+    'ais',
+    'sources',
+    'wechat',
     # 以下是第三方apps
     'django_filters',
     'social_django',

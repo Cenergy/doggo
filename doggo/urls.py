@@ -45,7 +45,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^ais/', include('ais.urls')),
     url(r'^api/', include('api.urls')),
-    url(r'^courses/', include('courses.urls')),
     url(r'^sources/', include('sources.urls')),
     url(r'^wechat', include('wechat.urls')),
     #drf自带的token认证模式

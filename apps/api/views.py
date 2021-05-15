@@ -4,7 +4,7 @@ import math
 # Create your views here.
 
 
-from api.serializers import SourcesCoreSerializers, BlogSerializers
+from api.serializers import SourcesCoreSerializers
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -17,7 +17,6 @@ from .filters import SourcesCoreFilter
 from utils.email_send import register_send_email, common_send_email
 from sources.models import SourcesCore
 from users.models import Suggestion
-from courses.models import Blog, BlogType
 
 import pandas as pd
 
