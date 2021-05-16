@@ -5,7 +5,6 @@ import datetime
 
 from utils import renameImg
 
-
 class SourcesCore(models.Model):
     SOURCES_TYPE = (
         (1, "视频资源"),
@@ -13,7 +12,7 @@ class SourcesCore(models.Model):
         (3, "软件资源"),
         (0, "其他资源"),
     )
-    id=models.IntegerField(primary_key=True,verbose_name="资源ID")
+    id=models.AutoField(primary_key=True,verbose_name="资源ID")
     sourcename=models.CharField(max_length=100,verbose_name='资源名称')
     sourceurl=models.URLField(verbose_name="资源地址",null=True,blank=True,help_text="可不填，会自动从资源描述里读取")
     code=models.CharField(max_length=20,verbose_name="提取码",null=True,blank=True,help_text="可不填，会自动从资源描述里读取")
@@ -38,7 +37,7 @@ class SourcesCore(models.Model):
         verbose_name_plural=verbose_name
 # 因为有API有次数限制
 class SourceLimit(models.Model):
-    id = models.IntegerField(primary_key=True, verbose_name="ID")
+    id = models.AutoField(primary_key=True, verbose_name="ID")
     num_count=models.IntegerField(default=50,verbose_name="次数")
     limit_time=models.DateField(default=datetime.date.today,verbose_name='有效时间')
 

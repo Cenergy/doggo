@@ -1,27 +1,22 @@
-import time  # 设置时间
+# Create your views here.
 import requests  # 导入requests库，
 import sys  # 导入系统库
-import numpy as np
 import socket
-from django.shortcuts import render
-
-# Create your views here.
 import json
 import os
 import uuid
 import base64
 import datetime
+import numpy as np
 import pandas as pd
-from django.views import View
+from aip import AipOcr
+
+
 from django.http import HttpResponse
-
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.db import connection
 
 
-from aip import AipOcr
 from doggo.settings import BAIDU_APP_ID, BAIDU_API_KEY, BAIDU_SECRET_KEY, BAIDU_MAP_KEY
 
 sysfile = os.path.abspath('.')
@@ -423,5 +418,13 @@ class POIbyRegion(APIView):
             "code": 400,
             "message": "failed",
             "data": str(e)
+        }
+        return Response(reginfs)
+class Test(APIView):
+    def get(self,request):
+        reginfs = {
+            "code": 400,
+            "message": "failed",
+            "data": 123456
         }
         return Response(reginfs)

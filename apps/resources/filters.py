@@ -2,9 +2,8 @@
 __author__ = 'Cenergy'
 __date__ = '25/9/18 下午4:37'
 
-from rest_framework import generics
 import django_filters
-from sources.models import SourcesCore
+from .models import SourcesCore
 
 
 class SourcesCoreFilter(django_filters.rest_framework.FilterSet):

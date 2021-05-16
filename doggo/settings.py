@@ -57,9 +57,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # 以上是默认的apps
     'users',
-    'api',
-    'ais',
-    'sources',
+    'blogs',
+    'comments',
+    'explores',
+    'resources',
     'wechat',
     # 以下是第三方apps
     'django_filters',

@@ -28,7 +28,7 @@ from django.http import HttpResponseRedirect
 from django.views.generic.base import TemplateView
 
 from utils.email_send import register_send_email, common_send_email, identity_send_email
-from .models import UserProfile, EmailVerifyRecord, Suggestion, FaceUser
+from .models import UserProfile, EmailVerifyRecord, FaceUser
 from .forms import LoginForm, RegisterForm, ForgetForm, ModifyPwdForm
 from utils.voices import towords
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -180,39 +180,6 @@ def BANAJAX(request):
         except:
             pass
         return JsonResponse(abc, content_type='application/json')
-
-
-# 用户建议或者意见
-class UserSuggestion(View):
-    def get(self, request):
-        pass
-
-    def post(self, request):
-        try:
-            suggest_email = request.POST.get("suggest_email", "")
-            suggest_user = request.POST.get("suggest_user", " ")
-            suggest_message = request.POST.get("suggest_message", "")
-            suggest_data = Suggestion()
-            suggest_data.email = suggest_email
-            suggest_data.suggest_name = suggest_user
-            suggest_data.suggest_content = suggest_message
-            suggest_data.save()
-            # 发邮件回复用户已收到
-            common_send_email("673598118@qq.com",
-                              suggest_email, suggest_message)
-            reginfs = {
-                "code": 202,
-                "message": "success",
-                "data": "hello"
-            }
-        except:
-            reginfs = {
-                "code": 400,
-                "message": "failed",
-                "data": "注册失败"
-            }
-        return HttpResponse(json.dumps(reginfs), content_type='application/json')
-
 
 # 人脸识别
 

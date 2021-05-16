@@ -10,9 +10,7 @@ __date__ = '10/8/18 下午4:26'
 
 from rest_framework import serializers
 
-from sources.models import SourcesCore
-from users.models import Suggestion
-
+from .models import SourcesCore
 
 ###SourcesCore
 
@@ -21,7 +19,5 @@ class  SourcesCoreSerializers(serializers.ModelSerializer):
         model = SourcesCore
         fields="__all__"
 
-class  SuggestionSerializers(serializers.ModelSerializer):
-    class Meta:
-        model = Suggestion
-        fields="__all__"
+
+
