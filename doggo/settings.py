@@ -28,7 +28,7 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'extra_apps'))
 SECRET_KEY = 'django-insecure-oa0m%=m-$gcpc9ripnwg=9+qy*^t0av1kc2_dx+f)1na_e*g^1'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*', ]
 # 跨域
@@ -44,6 +44,28 @@ AUTHENTICATION_BACKENDS = [
     'social_core.backends.weixin.WeixinOAuth2',
     'users.views.CustomBackend',
 ]
+
+SOCIAL_AUTH_POSTGRES_JSONFIELD = True
+SOCIAL_AUTH_URL_NAMESPACE = 'social'  # 新增
+SOCIAL_AUTH_GITHUB_KEY = 'cbd780d104e230cca877'
+SOCIAL_AUTH_GITHUB_SECRET = '0d101317cde90ca8cb66b6aa56532af62d1ddc49'
+SOCIAL_AUTH_GITHUB_USE_OPENID_AS_USERNAME = True
+
+SOCIAL_AUTH_QQ_KEY = '101946707'
+SOCIAL_AUTH_QQ_SECRET = '8b6fb506209ffd3360093484be3f7744'
+SOCIAL_AUTH_QQ_USE_OPENID_AS_USERNAME = True
+
+SOCIAL_AUTH_WEIBO_KEY = '2006316624'
+SOCIAL_AUTH_WEIBO_SECRET = '0723efacc88399f1332893d2b91211a6'
+SOCIAL_AUTH_WEIBO_USE_OPENID_AS_USERNAME = True
+
+
+# 登陆成功后的回调路由
+# SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'http://127.0.0.1:8000'  # 登陆成功之后的路由
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'  # 登陆成功之后的路由
+# SOCIAL_AUTH_SANITIZE_REDIRECTS = True
+# SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
+SOCIAL_AUTH_TRAILING_SLASH = False
 
 # Application definition
 
@@ -108,12 +130,12 @@ WSGI_APPLICATION = 'doggo.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 # 连接MySQL数据库
 # DATABASES = {
 #     'default': {
@@ -126,16 +148,16 @@ DATABASES = {
 #     }
 # }
 # 连接postgreSQL数据库
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'aigisss',
-#         'USER': 'postgres',
-#         'PASSWORD': 'postgres.neng',
-#         'HOST': '127.0.0.1',
-#         'PORT': '9555',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'aigisss',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres.neng',
+        'HOST': '127.0.0.1',
+        'PORT': '9555',
+    }
+}
 
 
 # Password validation
