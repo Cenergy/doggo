@@ -28,7 +28,7 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'extra_apps'))
 SECRET_KEY = 'django-insecure-oa0m%=m-$gcpc9ripnwg=9+qy*^t0av1kc2_dx+f)1na_e*g^1'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*', ]
 # 跨域
@@ -154,7 +154,7 @@ DATABASES = {
         'NAME': 'aigisss',
         'USER': 'postgres',
         'PASSWORD': 'postgres.neng',
-        'HOST': '127.0.0.1',
+        'HOST': '47.114.59.109',
         'PORT': '9555',
     }
 }
