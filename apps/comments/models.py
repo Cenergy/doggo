@@ -12,7 +12,7 @@ class Suggestion(models.Model):
         (1, "已答复"),
         (0, "未答复"),
     )
-    id = models.AutoField(primary_key=True)
+    id = models.BigAutoField(primary_key=True)
     suggest_name = models.CharField(max_length=100, verbose_name="用户名", null=True, blank=True)
     suggest_content = models.TextField(verbose_name="建议内容", null=False, blank=False)
     email = models.EmailField(max_length=50, verbose_name="邮件地址", null=False, blank=False)
