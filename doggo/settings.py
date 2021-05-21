@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-oa0m%=m-$gcpc9ripnwg=9+qy*^t0av1kc2_dx+f)1na_e*g^1
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '.aigisss.com']
+ALLOWED_HOSTS = ['127.0.0.1', '47.114.59.109']
 # 跨域
 CORS_ORIGIN_ALLOW_ALL = True
 
