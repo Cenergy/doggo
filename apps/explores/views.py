@@ -289,10 +289,11 @@ class ImgtoExcel(APIView):
                     excel_html = excel_source.to_html(classes='reg-img-excel-table')
                     excel_json["excel_html"] = excel_html
                     excel_json["excel_url"]=excel_url
+                    excel_json["origin_data"]=picUrl
                     reginfs = {
                             "code": 200,
                             "message": message,
-                            "data": picUrl
+                            "data": excel_json
                         }
             except:
                 picUrl = "error"
