@@ -246,6 +246,7 @@ class ImgtoExcel(APIView):
                 'language_type': 'CHN_ENG',
             }
             picUrl = "error"
+            message = "识别失败"
             try:
                 aipOcr = AipOcr(BAIDU_APP_ID, BAIDU_API_KEY, BAIDU_SECRET_KEY)
                 result = aipOcr.tableRecognitionAsync(
@@ -263,25 +264,34 @@ class ImgtoExcel(APIView):
                         picUrl = aaa["result"]
                         percent=picUrl["percent"]
                         if picUrl != '' and percent==100:
+                            message = '识别成功'
                             break
                     except:
                         picUrl = "error"
+                        message = "识别失败"
                     endtime = datetime.datetime.now()
                     if (endtime - starttime).seconds > 20:
                         picUrl = "error"
+                        message = '识别超时,请重试!'
                         break
                 if picUrl == "error":
                     os.remove(unknownimgpath)
                     reginfs = {
-                        "code": 200,
-                        "message": "fail1",
+                        "code": 400,
+                        "message": message,
                         "data": "fail"
                     }
                 else:
-                    picUrl["imgPath"]= unknownimgpath
+                    excel_json = {}
+                    excel_url = picUrl["result_data"]
+                    picUrl["imgPath"]= relative_img_path
+                    excel_source = pd.read_excel(excel_url)
+                    excel_html = excel_source.to_html(classes='reg-img-excel-table')
+                    excel_json["excel_html"] = excel_html
+                    excel_json["excel_url"]=excel_url
                     reginfs = {
                             "code": 200,
-                            "message": "success",
+                            "message": message,
                             "data": picUrl
                         }
             except:
@@ -289,7 +299,7 @@ class ImgtoExcel(APIView):
                 os.remove(unknownimgpath)
                 reginfs = {
                     "code": 400,
-                    "message": "fail3",
+                    "message": message,
                     "data": "fail"
                 }
             return HttpResponse(json.dumps(reginfs), content_type='application/json')
