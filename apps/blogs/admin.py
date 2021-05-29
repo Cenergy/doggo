@@ -1,7 +1,6 @@
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 
-from django_summernote.admin import SummernoteModelAdmin
 
 # Register your models here.
 from .models import Blog,BlogType
