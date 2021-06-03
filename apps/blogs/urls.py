@@ -5,7 +5,7 @@ __date__ = '14/9/18 下午5:07'
 from django.conf.urls import url
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authtoken import views
-from .views import BlogListView,BlogDetailView,BlogTypeView
+from .views import BlogListView,BlogDetailView,BlogTypeView,TestView
 
 urlpatterns = [
     url(r'all/$', BlogListView.as_view(), name="blogs"),
@@ -13,4 +13,5 @@ urlpatterns = [
         BlogDetailView.as_view(), name="blogs_detail"),
     url(r'types/(?P<blog_type>\d+)/$',
         BlogTypeView.as_view(), name="blogs_detail"),
+    url(r'^test/$', TestView.as_view(), name="test"),
 ]

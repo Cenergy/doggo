@@ -18,11 +18,19 @@ from rest_framework.response import Response
 
 
 from doggo.settings import BAIDU_APP_ID, BAIDU_API_KEY, BAIDU_SECRET_KEY, BAIDU_MAP_KEY
+from doggo.settings import MEDIA_ROOT, STATIC_ROOT
 
 sysfile = os.path.abspath('.')
 
 ty = sys.getfilesystemencoding()  # 这个可以获取文件系统的编码形式
 timeout = 20
+
+recognition_image_upload_path = '/recognition/images/'
+recognition_image_result_path = '/recognition/results/'
+relative_recognition_image_upload_path = '/media/recognition/images/'
+relative_recognition_image_result_path = '/media/recognition/results/'
+full_recognition_image_upload_path = MEDIA_ROOT+recognition_image_upload_path
+full_recognition_image_result_path = MEDIA_ROOT+recognition_image_upload_path
 
 
 class SourcesUpload(APIView):
@@ -46,7 +54,8 @@ class SourcesUpload(APIView):
         try:
             stick_img = request.POST.get("stick_img", False)
             upload_img_uuid = (str(uuid.uuid1())).replace("-", "")
-            upload_img_path = sysfile + '/static/img2word/' + upload_img_uuid + '.jpg'
+            img_file_name= upload_img_uuid + '.jpg'
+            upload_img_path = full_recognition_image_upload_path +img_file_name
             if stick_img:
                 img_path = base64.b64decode(stick_img.split(',')[-1])
                 with open(upload_img_path, 'wb') as f:
@@ -101,7 +110,8 @@ class ImageUpload(APIView):
             stick_img = request.data.get("stick_img", None)
             if stick_img:
                 upload_img_uuid = (str(uuid.uuid1())).replace("-", "")
-                upload_img_path = sysfile + '/static/img2word/' + upload_img_uuid + '.jpg'
+                img_file_name = upload_img_uuid + '.jpg'
+                upload_img_path = full_recognition_image_upload_path + img_file_name
                 img_path = base64.b64decode(stick_img.split(',')[-1])
                 with open(upload_img_path, 'wb') as f:
                     f.write(img_path)
@@ -137,13 +147,14 @@ class ImgtoWords(APIView):
                 "data": "失败"
             }
         else:
-            relative_img_path = '/static/img2word/' + img_uuid + '.jpg'
+            img_file_name = img_uuid + '.jpg'
+            relative_img_path = relative_recognition_image_upload_path + img_file_name
             try:
                 options = {
                     'detect_direction': 'true',
                     'language_type': 'CHN_ENG',
                 }
-                img_target_path = sysfile + relative_img_path
+                img_target_path = full_recognition_image_upload_path + img_file_name
                 aipOcr = AipOcr(BAIDU_APP_ID, BAIDU_API_KEY, BAIDU_SECRET_KEY)
                 result = aipOcr.webImage(
                     self.get_file_content(img_target_path), options)
@@ -177,8 +188,8 @@ class ImgtoWords(APIView):
                 "data": "失败"
             }
         else:
-            relative_img_path = '/static/img2word/' + img_uuid + '.jpg'
-            delete_img_path = sysfile + relative_img_path
+            img_file_name = img_uuid + '.jpg'
+            delete_img_path = full_recognition_image_upload_path+img_file_name
             try:
                 os.remove(delete_img_path)
                 reginfs = {
@@ -210,10 +221,9 @@ class ImgtoExcel(APIView):
             }
         else:
             try:
-                imgpath = sysfile + '/static/img2word/' + img_uuid + '.jpg'
-                excel_name = sysfile + "/static/img2word/" + img_uuid + ".xls"
+                img_file_name = img_uuid + '.jpg'
+                imgpath = full_recognition_image_upload_path + img_file_name
                 os.remove(imgpath)
-                os.remove(excel_name)
                 reginfs = {
                     "code": 444,
                     "message": "success",
@@ -239,8 +249,9 @@ class ImgtoExcel(APIView):
                 "data": "失败"
             }
         else:
-            relative_img_path = '/static/img2word/' + img_uuid + '.jpg'
-            unknownimgpath = sysfile + relative_img_path
+            file_name = img_uuid + '.jpg'
+            relative_img_path = relative_recognition_image_upload_path +file_name
+            unknownimgpath = full_recognition_image_upload_path +file_name
             options = {
                 'detect_direction': 'true',
                 'language_type': 'CHN_ENG',
@@ -262,8 +273,8 @@ class ImgtoExcel(APIView):
                         aaa = aipOcr.getTableRecognitionResult(
                             requestId, options)
                         picUrl = aaa["result"]
-                        percent=picUrl["percent"]
-                        if picUrl != '' and percent==100:
+                        percent = picUrl["percent"]
+                        if picUrl != '' and percent == 100:
                             message = '识别成功'
                             break
                     except:
@@ -284,18 +295,19 @@ class ImgtoExcel(APIView):
                 else:
                     excel_json = {}
                     excel_url = picUrl["result_data"]
-                    picUrl["imgPath"]= relative_img_path
+                    picUrl["imgPath"] = relative_img_path
                     excel_source = pd.read_excel(excel_url)
-                    excel_html = excel_source.to_html(classes='reg-img-excel-table',index=False)
+                    excel_html = excel_source.to_html(
+                        classes='reg-img-excel-table', index=False)
                     excel_json["excel_html"] = excel_html
                     excel_json["img_path"] = relative_img_path
                     excel_json["excel_url"] = excel_url
                     excel_json["origin_data"] = picUrl
                     reginfs = {
-                            "code": 200,
-                            "message": message,
-                            "data": excel_json
-                        }
+                        "code": 200,
+                        "message": message,
+                        "data": excel_json
+                    }
             except:
                 picUrl = "error"
                 os.remove(unknownimgpath)
@@ -318,7 +330,7 @@ def getdata(url):
         data = html.json()
         if data['results'] != None:
             return data['results']
-        return  []
+        return []
         # time.sleep(1)
     except:
         getdata(url)
@@ -329,28 +341,30 @@ class POIbyName(APIView):
     def get(self, request):
         name = request.query_params.get("name", None)
         city = request.query_params.get("city", None)
-        print(name,city,"====")
+        print(name, city, "====")
         urls = []  # 声明一个数组列表
         for i in range(0, 20):
             page_num = str(i)
             url = 'http://api.map.baidu.com/place/v2/search?query='+name+'&region=' + \
-                city+'&page_size=20&page_num='+str(page_num)+'&output=json&ak='+BAIDU_MAP_KEY
+                city+'&page_size=20&page_num=' + \
+                str(page_num)+'&output=json&ak='+BAIDU_MAP_KEY
             urls.append(url)
         print('url列表读取完成')
 
-        results=[]
+        results = []
         for url in urls:
-            res=getdata(url)
-            if res!=[]:
-                results+=res
+            res = getdata(url)
+            if res != []:
+                results += res
         df = pd.DataFrame(results)
         excel_uuid = (str(uuid.uuid1())).replace("-", "")
-        relative_excel_path = "/static/img2word/" + excel_uuid + ".xls"
-        excel_path = sysfile+"/static/img2word/" + excel_uuid + ".xls"
+        excel_file_name = excel_uuid + ".xls"
+        relative_excel_path = relative_recognition_image_result_path + excel_file_name
+        excel_path = full_recognition_image_result_path + excel_file_name
         # df['coord'] = ["[{},{}]".format(res["location"]["lng"],res["location"]["lat"]) for res in results]
         df.to_excel(excel_path)
 
-        excel_json={}
+        excel_json = {}
         excel_json["excelpath"] = relative_excel_path
         excel_json["id"] = excel_uuid
         excel_json["data"] = results
@@ -379,41 +393,43 @@ class POIbyRegion(APIView):
         maxLng = request.query_params.get("maxLng", None)
         maxLat = request.query_params.get("maxLat", None)
 
-        lng_c=float(maxLng)-float(minLng)
-        lat_c=float(maxLat)-float(minLat)
+        lng_c = float(maxLng)-float(minLng)
+        lat_c = float(maxLat)-float(minLat)
 
-        lng_num=int(lng_c/0.1)+1
-        lat_num=int(lat_c/0.1)+1
+        lng_num = int(lng_c/0.1)+1
+        lat_num = int(lat_c/0.1)+1
         # minLng, minLat, maxLng, maxLat
-        arr=np.zeros((lat_num+1,lng_num+1,2))
-        for lat in range(0,lat_num+1):
-            for lng in range(0,lng_num+1):
-                arr[lat][lng]=[float(minLng)+lng*0.1,float(minLat)+lat*0.1]
+        arr = np.zeros((lat_num+1, lng_num+1, 2))
+        for lat in range(0, lat_num+1):
+            for lng in range(0, lng_num+1):
+                arr[lat][lng] = [float(minLng)+lng*0.1, float(minLat)+lat*0.1]
 
-        urls=[]
+        urls = []
 
-
-        bounds='{},{},{},{}'.format(minLat,minLng,maxLat, maxLng)
-        for lat in range(0,lat_num):
-            for lng in range(0,lng_num):    
-                for b in range(0,20):
-                    page_num=str(b)
-                    url='http://api.map.baidu.com/place/v2/search?query='+name+'&bounds='+bounds+'&page_size=20&page_num='+str(page_num)+'&coord_type=2&output=json&ak='+BAIDU_MAP_KEY
+        bounds = '{},{},{},{}'.format(minLat, minLng, maxLat, maxLng)
+        for lat in range(0, lat_num):
+            for lng in range(0, lng_num):
+                for b in range(0, 20):
+                    page_num = str(b)
+                    url = 'http://api.map.baidu.com/place/v2/search?query='+name+'&bounds='+bounds + \
+                        '&page_size=20&page_num=' + \
+                        str(page_num)+'&coord_type=2&output=json&ak='+BAIDU_MAP_KEY
                     urls.append(url)
 
-        results=[]
+        results = []
         for url in urls:
-            res=getdata(url)
-            if res!=[]:
-                results+=res
+            res = getdata(url)
+            if res != []:
+                results += res
         df = pd.DataFrame(results)
         excel_uuid = (str(uuid.uuid1())).replace("-", "")
-        relative_excel_path = "/static/img2word/" + excel_uuid + ".xls"
-        excel_path = sysfile+"/static/img2word/" + excel_uuid + ".xls"
+        excel_file_name = excel_uuid + ".xls"
+        relative_excel_path = relative_recognition_image_result_path + excel_file_name
+        excel_path = full_recognition_image_result_path + excel_file_name
         # df['coord'] = ["[{},{}]".format(res["location"]["lng"],res["location"]["lat"]) for res in results]
         df.to_excel(excel_path)
 
-        excel_json={}
+        excel_json = {}
         excel_json["excelpath"] = relative_excel_path
         excel_json["id"] = excel_uuid
         excel_json["data"] = results
@@ -432,8 +448,10 @@ class POIbyRegion(APIView):
             "data": str(e)
         }
         return Response(reginfs)
+
+
 class Test(APIView):
-    def get(self,request):
+    def get(self, request):
         reginfs = {
             "code": 400,
             "message": "failed",

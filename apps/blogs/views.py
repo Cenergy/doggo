@@ -68,3 +68,20 @@ class BlogTypeView(APIView):
                 "data": "失败!!"
             }
         return Response(context)
+
+from doggo.settings import MEDIA_ROOT,STATIC_ROOT
+import os, sys,time,datetime
+path = MEDIA_ROOT+"/reg/"
+dirs = os.listdir(path)
+ 
+class TestView(APIView):
+    def get(self, requset):
+        for file in dirs:
+            f=path+file
+            mtime = time.ctime(os.path.getmtime(f))
+            a=datetime.datetime.strptime(mtime, "%a %b %d %H:%M:%S %Y")
+            b=datetime.datetime.now()
+            subDays=(b-a).days
+            
+            if subDays>1:
+                os.remove(f)

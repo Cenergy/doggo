@@ -33,6 +33,15 @@ from .forms import LoginForm, RegisterForm, ForgetForm, ModifyPwdForm
 from utils.voices import towords
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+from doggo.settings import MEDIA_ROOT
+
+recognition_face_upload_path = '/recognition/faces/'
+recognition_image_result_path = '/recognition/results/'
+relative_recognition_face_upload_path = '/media'+recognition_face_upload_path
+relative_recognition_face_result_path = '/media'+recognition_image_result_path
+full_recognition_face_upload_path = MEDIA_ROOT+recognition_face_upload_path
+full_recognition_face_result_path = MEDIA_ROOT+recognition_face_upload_path
+
 
 def page_not_found_view(request,exception,template_name='404.html'):
     return render(request,template_name,status=404)
@@ -204,7 +213,8 @@ class RegImage(View):
         sysfile = os.path.abspath('.')
         img = base64.b64decode(faceid.split(',')[-1])
         unknown_img_uuid = (str(uuid.uuid1())).replace("-", "")
-        uknownimgpath = sysfile + '/media/face/' + unknown_img_uuid + '.jpg'
+        img_file_name = unknown_img_uuid + '.jpg'
+        uknownimgpath = full_recognition_face_upload_path + img_file_name
         with open(uknownimgpath, 'wb') as f:
             f.write(img)
         faceuser_sql = "SELECT * from 'users_userprofile'"
