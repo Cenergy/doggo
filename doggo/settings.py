@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-oa0m%=m-$gcpc9ripnwg=9+qy*^t0av1kc2_dx+f)1na_e*g^1
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '.aigisss.com']
+ALLOWED_HOSTS = ['127.0.0.1', '.aigisss.com','localhost']
 # 跨域
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -92,6 +92,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'corsheaders',
     'import_export',
+    'django_q',
 ]
 
 MIDDLEWARE = [
@@ -199,7 +200,7 @@ USE_TZ = False
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media').replace('\\', '/')
 
 
 # Default primary key field type
@@ -261,6 +262,40 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': datetime.timedelta(days=1),
 }
 
+# 缓存设置
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+Q_CLUSTER = {
+    'name': 'aigisss_doggo',#项目名称
+    'workers': 4,  # worker数。默认为当前主机的CPU计数，
+    'recycle': 500,  # worker在回收之前要处理的任务数。有助于定期释放内存资源。默认为500。
+    'timeout': 60,   # 任务超时设置,如果是爬虫任务建议设置长一些
+    'compress': True,  # 数据压缩
+    'save_limit': 250,  # 限制保存到Django的成功任务的数量。0为无限，-1则不会保存
+    'queue_limit': 500,  # 排队的任务数量，默认为workers**2。
+    'cpu_affinity': 1,  # 设置每个工作人员可以使用的处理器数量。根据经验; cpu_affinity 1支持重复的短期运行任务，而没有亲和力则有利于长时间运行的任务。
+    'label': '任务',  # 用于Django Admin页面的标签。默认为'Django Q'，之后我会根据源码做一个中文版的django-admin页面。如果有需求请私信我
+    'redis': {  #如果配置了redis缓存，可以使用django的设置，请参考官方文档。
+        'host': '127.0.0.1',
+        'port': 6379,
+        'db': 0, }
+}
+
+
+# 配置session存储
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+
 # 邮箱设置
 EMAIL_HOST = "smtp.sina.com"
 EMAIL_PORT = 25
@@ -268,6 +303,8 @@ EMAIL_HOST_USER = "helloaigis@sina.com"
 EMAIL_HOST_PASSWORD = "Cenergy.0919"
 EMAIL_USE_TLS = False
 EMAIL_FROM = "helloaigis@sina.com"
+
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 
 # ----------------------手机号码正则表达式-------------------------------
 REGEX_MOBILE = "^1[358]\d{9}$|^147\d{8}$|^176\d{8}$"
