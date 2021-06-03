@@ -1,7 +1,7 @@
 from django.db import connection
 
 
-import os, sys,time
+import os, sys,time,datetime
 
 from doggo.settings import MEDIA_ROOT,STATIC_ROOT
  
@@ -15,8 +15,12 @@ aDayTicks = 60*60*24*1000
 def delRegImage():
     for file in dirs:
         f=path+file
-        mtime = os.path.getmtime(f)
-        ticks = time.time()
-        subTime = ticks-mtime
-        print(ticks,subTime,subTime>aDayTicks,"-------")
+        mtime = time.ctime(os.path.getmtime(f))
+        a=datetime.datetime.strptime(mtime, "%a %b %d %H:%M:%S %Y")
+        b=datetime.datetime.now()
+        subDays=(b-a).days
+        
+        if subDays>1:
+            os.remove(f)
+
 
