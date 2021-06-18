@@ -23,6 +23,11 @@ from drf_yasg import openapi
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.authtoken import views
+from rest_framework.documentation import include_docs_urls
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -43,6 +48,10 @@ handle403 = 'users.views.permission_denied_view'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    url(r'docs/', include_docs_urls(title="AIGISSS的API")),
     url(r'^api/', include('explores.urls')),
     url(r'^resources/', include('resources.urls')),
     url(r'^blogs/', include('blogs.urls')),
