@@ -6,7 +6,7 @@ import os, sys,time,datetime
 from doggo.settings import MEDIA_ROOT,STATIC_ROOT
  
 # 打开文件
-path = MEDIA_ROOT+"/recognition/"
+path = MEDIA_ROOT+"/recognition/images/"
 dirs = os.listdir(path)
  
 # 输出所有文件和文件夹
