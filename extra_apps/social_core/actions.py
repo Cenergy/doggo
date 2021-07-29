@@ -1,9 +1,9 @@
-from six.moves.urllib_parse import quote
+from urllib.parse import quote
 
 from .utils import sanitize_redirect, user_is_authenticated, \
-    user_is_active, partial_pipeline_data, setting_url
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+                   user_is_active, partial_pipeline_data, setting_url
 
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 def do_auth(backend, redirect_name='next'):
     # Save any defined next value into session
@@ -21,7 +21,7 @@ def do_auth(backend, redirect_name='next'):
         redirect_uri = data[redirect_name]
         if backend.setting('SANITIZE_REDIRECTS', True):
             allowed_hosts = backend.setting('ALLOWED_REDIRECT_HOSTS', []) + \
-                [backend.strategy.request_host()]
+                            [backend.strategy.request_host()]
             redirect_uri = sanitize_redirect(allowed_hosts, redirect_uri)
         backend.strategy.session_set(
             redirect_name,
@@ -97,7 +97,7 @@ def do_complete(backend, login, user=None, redirect_name='next',
 
     if backend.setting('SANITIZE_REDIRECTS', True):
         allowed_hosts = backend.setting('ALLOWED_REDIRECT_HOSTS', []) + \
-            [backend.strategy.request_host()]
+                        [backend.strategy.request_host()]
         url = sanitize_redirect(allowed_hosts, url) or \
             backend.setting('LOGIN_REDIRECT_URL')
     # return backend.strategy.redirect(url)
@@ -109,7 +109,7 @@ def do_complete(backend, login, user=None, redirect_name='next',
     import json
     response.set_cookie(
         "userInfo", json.dumps(user_info), max_age=7*24*3600)
-    response.set_cookie("accessToken", TokenObtainPairSerializer.get_token(user), max_age=7*24*3600)
+    # response.set_cookie("accessToken", TokenObtainPairSerializer.get_token(user), max_age=7*24*3600)
     return response
 
 
@@ -136,7 +136,7 @@ def do_disconnect(backend, user, association_id=None, redirect_name='next',
         )
         if backend.setting('SANITIZE_REDIRECTS', True):
             allowed_hosts = backend.setting('ALLOWED_REDIRECT_HOSTS', []) + \
-                [backend.strategy.request_host()]
+                            [backend.strategy.request_host()]
             url = sanitize_redirect(allowed_hosts, url) or \
                 backend.setting('DISCONNECT_REDIRECT_URL') or \
                 backend.setting('LOGIN_REDIRECT_URL')
