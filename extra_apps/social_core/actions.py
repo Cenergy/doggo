@@ -4,6 +4,7 @@ from .utils import sanitize_redirect, user_is_authenticated, \
                    user_is_active, partial_pipeline_data, setting_url
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.http import JsonResponse
 
 def do_auth(backend, redirect_name='next'):
     # Save any defined next value into session
@@ -106,11 +107,14 @@ def do_complete(backend, login, user=None, redirect_name='next',
     email = user.email
 
     user_info = {'username':username,'email':email,'displayName':username}
-    import json
-    response.set_cookie(
-        "userInfo", json.dumps(user_info), max_age=7*24*3600)
-    response.set_cookie("accessToken", TokenObtainPairSerializer.get_token(user), max_age=7*24*3600)
-    return response
+    data = {
+            "code": 200,
+            "message": "success!",
+            "data":user_info,
+            "redirect":url,
+            "token": "%s" % TokenObtainPairSerializer.get_token(user),
+        }
+    return JsonResponse(data, content_type='application/json')
 
 
 def do_disconnect(backend, user, association_id=None, redirect_name='next',
