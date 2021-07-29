@@ -109,7 +109,7 @@ def do_complete(backend, login, user=None, redirect_name='next',
     import json
     response.set_cookie(
         "userInfo", json.dumps(user_info), max_age=7*24*3600)
-    # response.set_cookie("accessToken", TokenObtainPairSerializer.get_token(user), max_age=7*24*3600)
+    response.set_cookie("accessToken", TokenObtainPairSerializer.get_token(user), max_age=7*24*3600)
     return response
 
 
