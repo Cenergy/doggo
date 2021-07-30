@@ -1,5 +1,5 @@
 from ..exceptions import AuthAlreadyAssociated, AuthException, AuthForbidden
-
+from django.contrib.auth import logout
 
 def social_details(backend, details, response, *args, **kwargs):
     return {'details': dict(backend.get_user_details(response), **details)}
@@ -21,6 +21,7 @@ def social_user(backend, uid, user=None, *args, **kwargs):
         if user and social.user != user:
             msg = 'This account is already in use.'
             raise AuthAlreadyAssociated(backend, msg)
+            # logout(backend.strategy.request)
         elif not user:
             user = social.user
     return {'social': social,
