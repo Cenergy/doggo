@@ -3,6 +3,7 @@ import requests  # 导入requests库，
 import sys  # 导入系统库
 import socket
 import json
+import re
 import os
 import uuid
 import base64
@@ -10,6 +11,7 @@ import datetime
 import numpy as np
 import pandas as pd
 from aip import AipOcr
+from rest_framework import status
 
 
 from django.http import HttpResponse
@@ -458,3 +460,36 @@ class Test(APIView):
             "data": 123456
         }
         return Response(reginfs)
+
+def list_split(items, n):
+    return [items[i:i + n] for i in range(0, len(items), n)]
+def getdata(name):
+    gitpage = requests.get("https://github.com/" + name)
+    data = gitpage.text
+    datadatereg = re.compile(r'data-date="(.*?)" data-level')
+    datacountreg = re.compile(r'data-count="(.*?)" data-date')
+    datadate = datadatereg.findall(data)
+    datacount = datacountreg.findall(data)
+    datacount = list(map(int, datacount))
+    contributions = sum(datacount)
+    datalist = []
+    for index, item in enumerate(datadate):
+        itemlist = {"date": item, "count": datacount[index]}
+        datalist.append(itemlist)
+    datalistsplit = list_split(datalist, 7)
+    returndata = {
+        "total": contributions,
+        "contributions": datalistsplit
+    }
+    return returndata
+class GithubContritutions(APIView):
+    def get(self, request,username):
+        try:
+            return Response(getdata(username), status=status.HTTP_200_OK)
+        except:
+            reginfs = {
+                "code": 500,
+                "message": "failed",
+                "data": "注册失败"
+            }
+        return Response(reginfs, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
