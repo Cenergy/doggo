@@ -43,15 +43,15 @@ full_recognition_face_upload_path = MEDIA_ROOT+recognition_face_upload_path
 full_recognition_face_result_path = MEDIA_ROOT+recognition_face_upload_path
 
 
-def page_not_found_view(request,exception,template_name='404.html'):
-    return render(request,template_name,status=404)
+def page_not_found_view(request, exception, template_name='404.html'):
+    return render(request, template_name, status=404)
 
 
 def server_error_view(request, template_name='500.html'):
-    return render(request, template_name,status=500)
+    return render(request, template_name, status=500)
 
 
-def permission_denied_view(request,exception,template_name='403.html'):
+def permission_denied_view(request, exception, template_name='403.html'):
     return render(request, template_name, status=403)
 
 
@@ -79,10 +79,15 @@ class CustomBackend(ModelBackend):
             return None
 
 
-class LogoutView(View):
+class LogoutView(APIView):
     def get(self, request):
+        print(request.user, "==================")
         logout(request)
-        return HttpResponseRedirect('/')
+        result = {
+            "code": 211,
+            "message": "未知错误",
+        }
+        return Response(result)
 
 
 class UserRegisterView(APIView):
@@ -191,6 +196,7 @@ def BANAJAX(request):
         return JsonResponse(abc, content_type='application/json')
 
 # 人脸识别
+
 
 class RegImage(View):
     def get(self, request):

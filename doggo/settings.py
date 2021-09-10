@@ -28,7 +28,7 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'extra_apps'))
 SECRET_KEY = 'django-insecure-oa0m%=m-$gcpc9ripnwg=9+qy*^t0av1kc2_dx+f)1na_e*g^1'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', '.aigisss.com','localhost']
 # 跨域
@@ -66,6 +66,23 @@ SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'https://aigisss.com/view/'  # 登陆成功之�
 # SOCIAL_AUTH_SANITIZE_REDIRECTS = True
 # SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
 SOCIAL_AUTH_TRAILING_SLASH = False
+
+
+SOCIAL_AUTH_DISCONNECT_PIPELINE = (
+# Verifies that the social association can be disconnected from the current
+# user (ensure that the user login mechanism is not compromised by this
+# disconnection).
+#'social.pipeline.disconnect.allowed_to_disconnect',
+
+# Collects the social associations to disconnect.
+'social.pipeline.disconnect.get_entries',
+
+# Revoke any access_token when possible.
+'social.pipeline.disconnect.revoke_tokens',
+
+# Removes the social associations.
+'social.pipeline.disconnect.disconnect',
+)
 
 # Application definition
 
