@@ -464,7 +464,7 @@ class Test(APIView):
 def list_split(items, n):
     return [items[i:i + n] for i in range(0, len(items), n)]
 def getdata(name):
-    gitpage = requests.get("https://github.com/" + name)
+    gitpage = requests.get("https://hub.fastgit.org/" + name)
     data = gitpage.text
     datadatereg = re.compile(r'data-date="(.*?)" data-level')
     datacountreg = re.compile(r'data-count="(.*?)" data-date')
