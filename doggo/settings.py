@@ -30,9 +30,20 @@ SECRET_KEY = 'django-insecure-oa0m%=m-$gcpc9ripnwg=9+qy*^t0av1kc2_dx+f)1na_e*g^1
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '.aigisss.com','localhost']
 # 跨域
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True  # 指明在跨域访问中，后端是否支持对cookie的操作
+CORS_ORIGIN_ALLOW_ALL = True  # 设置支持所有域名访问,如果为False,需要指定域名
+# CORS_ORIGIN_WHITELIST = ('*') #  白名单，"*"支持所有域名进行访问，也可写成("域名1","域名")
+ALLOWED_HOSTS = ['127.0.0.1', '.aigisss.com',
+                 'localhost', '47.114.59.109']     # 允许所有ip或域名
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5000",
+    "http://127.0.0.1:5000",
+]
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://\w+\.aigisss\.com$",
+]
 
 AUTH_USER_MODEL = 'users.UserProfile'
 
@@ -69,19 +80,19 @@ SOCIAL_AUTH_TRAILING_SLASH = False
 
 
 SOCIAL_AUTH_DISCONNECT_PIPELINE = (
-# Verifies that the social association can be disconnected from the current
-# user (ensure that the user login mechanism is not compromised by this
-# disconnection).
-#'social.pipeline.disconnect.allowed_to_disconnect',
+    # Verifies that the social association can be disconnected from the current
+    # user (ensure that the user login mechanism is not compromised by this
+    # disconnection).
+    # 'social.pipeline.disconnect.allowed_to_disconnect',
 
-# Collects the social associations to disconnect.
-'social.pipeline.disconnect.get_entries',
+    # Collects the social associations to disconnect.
+    'social.pipeline.disconnect.get_entries',
 
-# Revoke any access_token when possible.
-'social.pipeline.disconnect.revoke_tokens',
+    # Revoke any access_token when possible.
+    'social.pipeline.disconnect.revoke_tokens',
 
-# Removes the social associations.
-'social.pipeline.disconnect.disconnect',
+    # Removes the social associations.
+    'social.pipeline.disconnect.disconnect',
 )
 
 # Application definition
@@ -113,6 +124,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -127,7 +139,7 @@ ROOT_URLCONF = 'doggo.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates'),],
+        'DIRS': [os.path.join(BASE_DIR, 'templates'), ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -232,7 +244,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SIMPLEUI_DEFAULT_THEME = 'admin.lte.css'
 
 
-
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.AutoSchema',
     # "DEFAULT_VERSIONING_CLASS": 'rest_framework.versioning.URLPathVersioning',
@@ -292,7 +303,7 @@ CACHES = {
 }
 
 Q_CLUSTER = {
-    'name': 'aigisss_doggo',#项目名称
+    'name': 'aigisss_doggo',  # 项目名称
     'workers': 4,  # worker数。默认为当前主机的CPU计数，
     'recycle': 500,  # worker在回收之前要处理的任务数。有助于定期释放内存资源。默认为500。
     'timeout': 60,   # 任务超时设置,如果是爬虫任务建议设置长一些
@@ -301,7 +312,7 @@ Q_CLUSTER = {
     'queue_limit': 500,  # 排队的任务数量，默认为workers**2。
     'cpu_affinity': 1,  # 设置每个工作人员可以使用的处理器数量。根据经验; cpu_affinity 1支持重复的短期运行任务，而没有亲和力则有利于长时间运行的任务。
     'label': '任务',  # 用于Django Admin页面的标签。默认为'Django Q'，之后我会根据源码做一个中文版的django-admin页面。如果有需求请私信我
-    'redis': {  #如果配置了redis缓存，可以使用django的设置，请参考官方文档。
+    'redis': {  # 如果配置了redis缓存，可以使用django的设置，请参考官方文档。
         'host': '127.0.0.1',
         'port': 6379,
         'db': 0, }
