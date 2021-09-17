@@ -490,10 +490,10 @@ def getdata(name):
 
 class GithubContritutions(APIView):
     def get(self, request, username):
-        now_time = datetime.datetime.now()
-        date_day_string = now_time.strftime('%Y%m%d')
-        cache_key_string = username+'_'+date_day_string
         try:
+            now_time = datetime.datetime.now()
+            date_day_string = now_time.strftime('%Y%m%d')
+            cache_key_string = username+'_'+date_day_string
             is_exist_key = cache.has_key(cache_key_string)
             if is_exist_key:
                 return Response(cache.get(cache_key_string), status=status.HTTP_200_OK)
@@ -501,6 +501,7 @@ class GithubContritutions(APIView):
                 github_data = getdata(username)
                 cache.set(cache_key_string, github_data, 60*60*24)
                 return Response(github_data, status=status.HTTP_200_OK)
+            # return Response(getdata(username), status=status.HTTP_200_OK)
         except:
             reginfs = {
                 "code": 500,
