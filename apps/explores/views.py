@@ -17,6 +17,7 @@ from rest_framework import status
 from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.core.cache import cache
 
 
 from doggo.settings import BAIDU_APP_ID, BAIDU_API_KEY, BAIDU_SECRET_KEY, BAIDU_MAP_KEY
@@ -56,8 +57,8 @@ class SourcesUpload(APIView):
         try:
             stick_img = request.POST.get("stick_img", False)
             upload_img_uuid = (str(uuid.uuid1())).replace("-", "")
-            img_file_name= upload_img_uuid + '.jpg'
-            upload_img_path = full_recognition_image_upload_path +img_file_name
+            img_file_name = upload_img_uuid + '.jpg'
+            upload_img_path = full_recognition_image_upload_path + img_file_name
             if stick_img:
                 img_path = base64.b64decode(stick_img.split(',')[-1])
                 with open(upload_img_path, 'wb') as f:
@@ -252,8 +253,8 @@ class ImgtoExcel(APIView):
             }
         else:
             file_name = img_uuid + '.jpg'
-            relative_img_path = relative_recognition_image_upload_path +file_name
-            unknownimgpath = full_recognition_image_upload_path +file_name
+            relative_img_path = relative_recognition_image_upload_path + file_name
+            unknownimgpath = full_recognition_image_upload_path + file_name
             options = {
                 'detect_direction': 'true',
                 'language_type': 'CHN_ENG',
@@ -461,8 +462,11 @@ class Test(APIView):
         }
         return Response(reginfs)
 
+
 def list_split(items, n):
     return [items[i:i + n] for i in range(0, len(items), n)]
+
+
 def getdata(name):
     gitpage = requests.get("https://hub.fastgit.org/" + name)
     data = gitpage.text
@@ -482,14 +486,26 @@ def getdata(name):
         "contributions": datalistsplit
     }
     return returndata
+
+
 class GithubContritutions(APIView):
-    def get(self, request,username):
+    def get(self, request, username):
+        import datetime
+        now_time = datetime.datetime.now()
+        date_day_string = now_time.strftime('%Y%m%d')
+        cache_key_string = username+'_'+date_day_string
         try:
-            return Response(getdata(username), status=status.HTTP_200_OK)
+            is_exist_key = cache.has_key(cache_key_string)
+            if is_exist_key:
+                return Response(cache.get(cache_key_string), status=status.HTTP_200_OK)
+            else:
+                github_data = getdata(username)
+                cache.set(cache_key_string, github_data, 60*60*24)
+                return Response(github_data, status=status.HTTP_200_OK)
         except:
             reginfs = {
                 "code": 500,
                 "message": "failed",
-                "data": "注册失败"
+                "data": "请求失败"
             }
         return Response(reginfs, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
