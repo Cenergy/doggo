@@ -490,7 +490,6 @@ def getdata(name):
 
 class GithubContritutions(APIView):
     def get(self, request, username):
-        import datetime
         now_time = datetime.datetime.now()
         date_day_string = now_time.strftime('%Y%m%d')
         cache_key_string = username+'_'+date_day_string
