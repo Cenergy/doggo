@@ -106,15 +106,23 @@ def do_complete(backend, login, user=None, redirect_name='next',
     username = user.name if user.name else user.username
     email = user.email
 
-    user_info = {'username':username,'email':email,'displayName':username}
-    data = {
-            "code": 200,
-            "message": "success!",
-            "data":user_info,
-            "redirect":url,
-            "token": "%s" % TokenObtainPairSerializer.get_token(user),
-        }
-    return JsonResponse(data, content_type='application/json')
+    # user_info = {'username':username,'email':email,'displayName':username}
+
+    payload_token = TokenObtainPairSerializer.get_token(user)
+    response.set_cookie("username",username, max_age=24*3600)
+    response.set_cookie("email",email, max_age=24*3600)
+    response.set_cookie("displayName",username, max_age=24*3600)
+    response.set_cookie("token", payload_token, max_age=24*3600)
+    return response
+    
+    # data = {
+    #         "code": 200,
+    #         "message": "success!",
+    #         "data":user_info,
+    #         "redirect":url,
+    #         "token": "%s" % TokenObtainPairSerializer.get_token(user),
+    #     }
+    # return JsonResponse(data, content_type='application/json')
 
 
 def do_disconnect(backend, user, association_id=None, redirect_name='next',
