@@ -45,7 +45,6 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^https://\w+\.aigisss\.com$",
 ]
 
-CORS_ALLOW_CREDENTIALS = True
 SESSION_COOKIE_DOMAIN = ".aigisss.com"
 
 AUTH_USER_MODEL = 'users.UserProfile'
