@@ -109,7 +109,7 @@ def do_complete(backend, login, user=None, redirect_name='next',
     # user_info = {'username':username,'email':email,'displayName':username}
 
     payload_token = TokenObtainPairSerializer.get_token(user)
-    response.set_cookie("username",domain='https://aigisss.com/', path='/',value=username, max_age=24*3600)
+    response.set_cookie("username",domain='aigisss.com', path='/',value=username, max_age=24*3600)
     response.set_cookie("email",email, max_age=24*3600)
     response.set_cookie("displayName",username, max_age=24*3600)
     response.set_cookie("token", payload_token, max_age=24*3600)
