@@ -83,11 +83,18 @@ class LogoutView(APIView):
     def get(self, request):
         print(request.user, "==================")
         logout(request)
-        result = {
+        content = {
             "code": 211,
             "message": "未知错误",
         }
-        return Response(result)
+        response=JsonResponse(content)
+
+        response.delete_cookie("username")
+        response.delete_cookie("email")
+        response.delete_cookie("displayName")
+        response.delete_cookie("accessToken")
+        response.delete_cookie("userInfo")
+        return response
 
 
 class UserRegisterView(APIView):
