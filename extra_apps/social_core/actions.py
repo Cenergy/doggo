@@ -1,10 +1,16 @@
 from urllib.parse import quote
 
 from .utils import sanitize_redirect, user_is_authenticated, \
-                   user_is_active, partial_pipeline_data, setting_url
+    user_is_active, partial_pipeline_data, setting_url
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.http import JsonResponse
+import json
+
+COOKIE_DOMAIN = 'aigisss.com'
+COOKIE_PATH = '/'
+COOKIE_MAX_AGE = 24*60*60
+
 
 def do_auth(backend, redirect_name='next'):
     # Save any defined next value into session
@@ -22,7 +28,7 @@ def do_auth(backend, redirect_name='next'):
         redirect_uri = data[redirect_name]
         if backend.setting('SANITIZE_REDIRECTS', True):
             allowed_hosts = backend.setting('ALLOWED_REDIRECT_HOSTS', []) + \
-                            [backend.strategy.request_host()]
+                [backend.strategy.request_host()]
             redirect_uri = sanitize_redirect(allowed_hosts, redirect_uri)
         backend.strategy.session_set(
             redirect_name,
@@ -98,7 +104,7 @@ def do_complete(backend, login, user=None, redirect_name='next',
 
     if backend.setting('SANITIZE_REDIRECTS', True):
         allowed_hosts = backend.setting('ALLOWED_REDIRECT_HOSTS', []) + \
-                        [backend.strategy.request_host()]
+            [backend.strategy.request_host()]
         url = sanitize_redirect(allowed_hosts, url) or \
             backend.setting('LOGIN_REDIRECT_URL')
     # return backend.strategy.redirect(url)
@@ -106,15 +112,22 @@ def do_complete(backend, login, user=None, redirect_name='next',
     username = user.name if user.name else user.username
     email = user.email
 
-    user_info = {'username':username,'email':email,'displayName':username}
-
+    user_info = {'username': username, 'email': email, 'displayName': username}
     payload_token = TokenObtainPairSerializer.get_token(user)
-    response.set_cookie("username",domain='aigisss.com', path='/',value=user_info, max_age=24*3600)
-    response.set_cookie("email",email, max_age=24*3600)
-    response.set_cookie("displayName",username, max_age=24*3600)
-    response.set_cookie("token", payload_token, max_age=24*3600)
-    return response
     
+    response.set_cookie("username", domain=COOKIE_DOMAIN,
+                        path=COOKIE_PATH, value=username, max_age=COOKIE_MAX_AGE)
+    response.set_cookie("email", domain=COOKIE_DOMAIN,
+                        path=COOKIE_PATH, value=email, max_age=COOKIE_MAX_AGE)
+    response.set_cookie("displayName", domain=COOKIE_DOMAIN,
+                        path=COOKIE_PATH, value=username, max_age=COOKIE_MAX_AGE)
+    response.set_cookie("accessToken", domain=COOKIE_DOMAIN,
+                        path=COOKIE_PATH, value=payload_token, max_age=COOKIE_MAX_AGE)
+    response.set_cookie("userInfo", domain=COOKIE_DOMAIN,
+                        path=COOKIE_PATH, value=json.dumps(user_info), max_age=COOKIE_MAX_AGE)
+
+    return response
+
     # data = {
     #         "code": 200,
     #         "message": "success!",
@@ -148,7 +161,7 @@ def do_disconnect(backend, user, association_id=None, redirect_name='next',
         )
         if backend.setting('SANITIZE_REDIRECTS', True):
             allowed_hosts = backend.setting('ALLOWED_REDIRECT_HOSTS', []) + \
-                            [backend.strategy.request_host()]
+                [backend.strategy.request_host()]
             url = sanitize_redirect(allowed_hosts, url) or \
                 backend.setting('DISCONNECT_REDIRECT_URL') or \
                 backend.setting('LOGIN_REDIRECT_URL')
