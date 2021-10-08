@@ -87,7 +87,7 @@ class LogoutView(APIView):
             "code": 211,
             "message": "未知错误",
         }
-        response=JsonResponse(content)
+        response = JsonResponse(content)
 
         response.delete_cookie("username")
         response.delete_cookie("email")
