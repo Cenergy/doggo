@@ -34,6 +34,7 @@ from utils.voices import towords
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from doggo.settings import MEDIA_ROOT
+COOKIE_DOMAIN = 'aigisss.com'
 
 recognition_face_upload_path = '/recognition/faces/'
 recognition_image_result_path = '/recognition/results/'
@@ -89,11 +90,11 @@ class LogoutView(APIView):
         }
         response = JsonResponse(content)
 
-        response.delete_cookie("username")
-        response.delete_cookie("email")
-        response.delete_cookie("displayName")
-        response.delete_cookie("accessToken")
-        response.delete_cookie("userInfo")
+        response.delete_cookie("username", domain=COOKIE_DOMAIN)
+        response.delete_cookie("email", domain=COOKIE_DOMAIN)
+        response.delete_cookie("displayName", domain=COOKIE_DOMAIN)
+        response.delete_cookie("accessToken", domain=COOKIE_DOMAIN)
+        response.delete_cookie("userInfo", domain=COOKIE_DOMAIN)
         return response
 
 

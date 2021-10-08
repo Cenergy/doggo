@@ -114,14 +114,17 @@ def do_complete(backend, login, user=None, redirect_name='next',
 
     user_info = {'username': username, 'email': email, 'displayName': username}
     payload_token = TokenObtainPairSerializer.get_token(user)
-
-    response.set_cookie("username",  value=username, max_age=COOKIE_MAX_AGE)
-    response.set_cookie("email",  value=email, max_age=COOKIE_MAX_AGE)
-    response.set_cookie("displayName",  value=username, max_age=COOKIE_MAX_AGE)
-    response.set_cookie("accessToken",  value=payload_token,
-                        max_age=COOKIE_MAX_AGE)
-    response.set_cookie("userInfo",  value=json.dumps(
-        user_info), max_age=COOKIE_MAX_AGE)
+    
+    response.set_cookie("username", domain=COOKIE_DOMAIN,
+                        path=COOKIE_PATH, value=username, max_age=COOKIE_MAX_AGE)
+    response.set_cookie("email", domain=COOKIE_DOMAIN,
+                        path=COOKIE_PATH, value=email, max_age=COOKIE_MAX_AGE)
+    response.set_cookie("displayName", domain=COOKIE_DOMAIN,
+                        path=COOKIE_PATH, value=username, max_age=COOKIE_MAX_AGE)
+    response.set_cookie("accessToken", domain=COOKIE_DOMAIN,
+                        path=COOKIE_PATH, value=payload_token, max_age=COOKIE_MAX_AGE)
+    response.set_cookie("userInfo", domain=COOKIE_DOMAIN,
+                        path=COOKIE_PATH, value=json.dumps(user_info), max_age=COOKIE_MAX_AGE)
 
     return response
 
