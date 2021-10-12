@@ -1,4 +1,9 @@
 from django.db import models
+from django.db.models.fields.files import ImageFieldFile
+from django.conf import settings
+from PIL import Image
+
+THUMB_ROOT = "images/thumb" # 这个是最终的缩略图要保存的路径
 
 # Create your models here.
 import datetime
@@ -44,3 +49,55 @@ class SourceLimit(models.Model):
     class Meta:
         verbose_name="次数管理"
         verbose_name_plural=verbose_name
+
+import os,time
+def modify_path(instance, filename):
+    '''
+    重定义图片保存路径
+    :param instance: self
+    :param filename: 文件名
+    :return: 新路径
+    '''
+    # ext = filename.split('.').pop()
+    # now_date = datetime.datetime.now().strftime('%Y%m%d')
+    # now_time = int(time.time())
+    # filename = '{0}{1}.{2}'.format(now_date, now_time, ext)
+    return os.path.join('images', filename) # 系统路径分隔符差异，增强代码重用性
+def make_thumb(path, size = 180):
+    pixbuf = Image.open(path)
+    width, height = pixbuf.size
+
+    if width > size:
+        delta = width / size
+        height = int(height / delta)
+        pixbuf.thumbnail((size, height), Image.ANTIALIAS)
+    return pixbuf
+import os, datetime, uuid
+def generate_filename_thumb(instance, filename):
+    directory_name = datetime.datetime.now().strftime('upload_img/thumb/%Y/%m')
+    filename = uuid.uuid4().hex + os.path.splitext(filename)[-1]
+    return os.path.join(directory_name, filename)
+
+class PicTest(models.Model):
+    id=models.AutoField(primary_key=True,verbose_name="ID")
+    name=models.CharField(max_length=100,verbose_name='名称')
+    pic = models.ImageField(upload_to=modify_path,unique=True)
+    pic_thumb = models.ImageField(upload_to='images/thumb', null=True)
+    class Meta:
+        verbose_name = '图片列表'
+        verbose_name_plural = verbose_name
+        ordering = ['id']
+    def save(self):
+        super(PicTest, self).save()  # 将上传的图片先保存一下，否则报错
+        base, ext = os.path.splitext(os.path.basename(self.pic.url))
+        filename=os.path.basename(self.pic.url)
+        savedPath=self.pic.path
+        thumb_pixbuf = make_thumb(savedPath)
+        relate_thumb_path = os.path.join(THUMB_ROOT,filename)
+        thumb_path = os.path.join(settings.MEDIA_ROOT, relate_thumb_path)
+        thumb_abspath = os.path.join(settings.MEDIA_ROOT, THUMB_ROOT)
+        if not os.path.exists(thumb_abspath):
+            os.makedirs(thumb_abspath)
+        thumb_pixbuf.save(os.path.abspath(thumb_path))
+        self.pic_thumb = ImageFieldFile(self, self.pic_thumb, relate_thumb_path)
+        super(PicTest, self).save() # 再保存一下，包括缩略图等
