@@ -128,16 +128,16 @@ class GithubContritutions(APIView):
                 imageData = pd.read_sql(query_img, connection)
                 if len(imageData):
                     selectData=imageData.iloc[0]
-                    img_path=os.path.join(settings.MEDIA_URL,selectData.pic_webp)
+                    img_path=os.path.join(settings.MEDIA_ROOT,selectData.pic_webp)
                     if img_info.type== -1:
-                        img_path=os.path.join(settings.MEDIA_URL,selectData.pic)
+                        img_path=os.path.join(settings.MEDIA_ROOT,selectData.pic)
                     if img_info.type== 1:
-                        img_path=os.path.join(settings.MEDIA_URL,selectData.pic_thumb)
-                    # image_data = open(img_path,"rb").read() 
-                    return HttpResponse(img_path) 
+                        img_path=os.path.join(settings.MEDIA_ROOT,selectData.pic_thumb)
+                    image_data = open(img_path,"rb").read() 
+                    return HttpResponse(image_data,content_type="image/png") 
         except:
-            img_path=os.path.join(settings.MEDIA_URL,'images/webp/default.webp')
-            # image_data = open(img_path,"rb").read() 
-            return HttpResponse(img_path)
+            img_path=os.path.join(settings.MEDIA_ROOT,'images/webp/default.webp')
+            image_data = open(img_path,"rb").read() 
+            return HttpResponse(image_data,content_type="image/png")
 
 
