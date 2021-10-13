@@ -133,11 +133,11 @@ class GithubContritutions(APIView):
                         img_path=os.path.join(settings.MEDIA_ROOT,selectData.pic)
                     if img_info.type== 1:
                         img_path=os.path.join(settings.MEDIA_ROOT,selectData.pic_thumb)
-                    image_data = open(img_path,"rb").read() 
-                    return HttpResponse(image_data,content_type="image/png") 
+                    # image_data = open(img_path,"rb").read() 
+                    return HttpResponse(img_path) 
         except:
             img_path=os.path.join(settings.MEDIA_ROOT,'images/webp/default.webp')
-            image_data = open(img_path,"rb").read() 
-            return HttpResponse(image_data,content_type="image/png")
+            # image_data = open(img_path,"rb").read() 
+            return HttpResponse(img_path)
 
 
