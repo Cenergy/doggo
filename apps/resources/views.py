@@ -1,6 +1,7 @@
 # Create your views here.
 import os
 import math
+from django.http.response import HttpResponse
 import pandas as pd
 
 from django.views import View
@@ -12,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework import mixins,viewsets,filters
 from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
+from django.conf import settings
 
 
 from .models import SourcesCore
@@ -110,5 +112,32 @@ class SourcesList(APIView):
         data = {"code": 0, "msg": "", "count": count, "data": serializer.data}
         return Response(data)
 
+
+class GithubContritutions(APIView):
+    def get(self, request, id):
+        try:
+            query_sql = "SELECT * FROM resources_imagematch where id={0}".format(
+                id)
+            data = pd.read_sql(query_sql, connection)
+            if len(data):
+                img_id=data['img_id'].iloc[0]
+                img_type=data['type'].iloc[0]
+                img_info=data.iloc[0]
+                query_img = "SELECT * FROM resources_imagesource where id={0}".format(
+                    img_info.img_id)
+                imageData = pd.read_sql(query_img, connection)
+                if len(imageData):
+                    selectData=imageData.iloc[0]
+                    img_path=os.path.join(settings.MEDIA_ROOT,selectData.pic_webp)
+                    if img_info.type== -1:
+                        img_path=os.path.join(settings.MEDIA_ROOT,selectData.pic)
+                    if img_info.type== 1:
+                        img_path=os.path.join(settings.MEDIA_ROOT,selectData.pic_thumb)
+                    image_data = open(img_path,"rb").read() 
+                    return HttpResponse(image_data,content_type="image/png") 
+        except:
+            img_path=os.path.join(settings.MEDIA_ROOT,'images/webp/default.webp')
+            image_data = open(img_path,"rb").read() 
+            return HttpResponse(image_data,content_type="image/png")
 
 

@@ -45,7 +45,7 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^https://\w+\.aigisss\.com$",
 ]
 
-SESSION_COOKIE_DOMAIN = ".aigisss.com"
+# SESSION_COOKIE_DOMAIN = "aigisss.com"  #这个设置之后开发admin就登陆不上
 
 AUTH_USER_MODEL = 'users.UserProfile'
 
