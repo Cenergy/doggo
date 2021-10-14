@@ -34,3 +34,20 @@ class Suggestion(models.Model):
 
     def __str__(self):
         return self.email
+
+class FriendLinks(models.Model):
+    id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=50, verbose_name="名称", null=False, blank=False)
+    intro = models.CharField(max_length=200, verbose_name="简介", null=True, blank=True)
+    link = models.URLField(verbose_name="链接", null=False, blank=False)
+    avatar = models.URLField(verbose_name="头像",null=True, blank=True)
+    email = models.EmailField(verbose_name="邮件地址", null=True, blank=True)
+    description = models.CharField(max_length=200, null=True, blank=True,verbose_name='描述')
+    add_time = models.DateField(default=datetime.datetime.now, verbose_name="添加时间")
+
+    class Meta:
+        verbose_name = "友情链接"
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.title

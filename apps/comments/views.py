@@ -4,8 +4,8 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from .serializers import SuggestionSerializers
-from .models import Suggestion
+from .serializers import SuggestionSerializers,FriendLinksSerializers
+from .models import Suggestion,FriendLinks
 from utils.email_send import  common_send_email
 
 
@@ -58,3 +58,20 @@ class SuggestionsView(APIView):
                 "data": "失败"
             }
         return Response(reginfs)
+
+class FriendLinksView(APIView):
+    """
+    List all snippets, or create a new snippet.
+    """
+    def get(self, request):
+        try:
+            contexts = FriendLinks.objects.all().order_by('-id')
+            serializer = FriendLinksSerializers(contexts, many=True)
+            context = {"code": 200, "msg": "success", "data": serializer.data}
+        except:
+            context = {
+                "code": 400,
+                "message": "failed",
+                "data": "失败"
+            }
+        return Response(context)

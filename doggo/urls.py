@@ -55,6 +55,7 @@ urlpatterns = [
     url(r'^api/', include('explores.urls')),
     url(r'^resources/', include('resources.urls')),
     url(r'^blogs/', include('blogs.urls')),
+    url(r'^comments/', include('comments.urls')),
     url(r'^wechat', include('wechat.urls')),
     #drf自带的token认证模式
     url(r'^api-token-auth/', views.obtain_auth_token),
