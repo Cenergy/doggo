@@ -28,7 +28,7 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'extra_apps'))
 SECRET_KEY = 'django-insecure-oa0m%=m-$gcpc9ripnwg=9+qy*^t0av1kc2_dx+f)1na_e*g^1'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # 跨域
 CORS_ALLOW_CREDENTIALS = True  # 指明在跨域访问中，后端是否支持对cookie的操作
@@ -46,6 +46,7 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
 ]
 
 # SESSION_COOKIE_DOMAIN = "aigisss.com"  #这个设置之后开发admin就登陆不上
+AIGISSS_HOST='https://api.aigisss.com'
 
 AUTH_USER_MODEL = 'users.UserProfile'
 

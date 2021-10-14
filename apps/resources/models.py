@@ -10,8 +10,8 @@ import datetime
 import uuid
 
 
-THUMB_ROOT = "images/thumb"  # 这个是最终的缩略图要保存的路径
-WEBP_ROOT = "images/webp"  # 这个是最终的缩略图要保存的路径
+THUMB_ROOT = "images/thumb/"  # 这个是最终的缩略图要保存的路径
+WEBP_ROOT = "images/webp/"  # 这个是最终的缩略图要保存的路径
 
 # Create your models here.
 
@@ -107,7 +107,7 @@ def pic_webp(picpath):
     webp_path = os.path.join(settings.MEDIA_ROOT, WEBP_ROOT)
     if not os.path.exists(webp_path):
         os.makedirs(webp_path)
-    outputPath = webp_path +'/'+ imageName+".webp"
+    outputPath = webp_path + '/' + imageName+".webp"
     im = Image.open(picpath).convert("RGB")
     im.save(outputPath, 'webp')
 
@@ -135,9 +135,11 @@ class ImageSource(models.Model):
         imageName, _ = os.path.splitext(os.path.basename(self.pic.url))
         relate_thumb_path = os.path.join(THUMB_ROOT, filename)
         relate_webp_path = os.path.join(WEBP_ROOT, imageName+'.webp')
+        print('relate_webp_path',relate_webp_path)
         pic_thumb(self.pic.path)
         pic_webp(self.pic.path)
-        self.pic_thumb = ImageFieldFile(self, self.pic_thumb, relate_thumb_path)
+        self.pic_thumb = ImageFieldFile(
+            self, self.pic_thumb, relate_thumb_path)
         self.pic_webp = ImageFieldFile(self, self.pic_thumb, relate_webp_path)
         super(ImageSource, self).save()  # 再保存一下，包括缩略图等
 
@@ -150,10 +152,11 @@ class ImageMatch(models.Model):
     )
     id = models.AutoField(primary_key=True, verbose_name="ID")
     img_id = models.IntegerField(verbose_name="图片ID")
-    type= models.SmallIntegerField(
+    type = models.SmallIntegerField(
         choices=SOURCES_TYPE, verbose_name="图片类型", help_text="图片类型", default=0)
-    description=  models.CharField(max_length=200, null=True, blank=True,
-                                  verbose_name='描述')
+    description = models.CharField(max_length=200, null=True, blank=True,
+                                   verbose_name='描述')
+
     class Meta:
         verbose_name = '图片选择'
         verbose_name_plural = verbose_name

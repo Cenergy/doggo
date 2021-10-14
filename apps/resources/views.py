@@ -6,7 +6,7 @@ import pandas as pd
 
 from django.views import View
 from django.db import connection
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -119,6 +119,7 @@ class GithubContritutions(APIView):
             query_sql = "SELECT * FROM resources_imagematch where id={0}".format(
                 id)
             data = pd.read_sql(query_sql, connection)
+
             if len(data):
                 img_id=data['img_id'].iloc[0]
                 img_type=data['type'].iloc[0]
@@ -128,16 +129,16 @@ class GithubContritutions(APIView):
                 imageData = pd.read_sql(query_img, connection)
                 if len(imageData):
                     selectData=imageData.iloc[0]
-                    img_path=os.path.join(settings.MEDIA_ROOT,selectData.pic_webp)
+                    img_path=os.path.join(settings.MEDIA_URL,selectData.pic_webp)
                     if img_info.type== -1:
-                        img_path=os.path.join(settings.MEDIA_ROOT,selectData.pic)
+                        img_path=os.path.join(settings.MEDIA_URL,selectData.pic)
                     if img_info.type== 1:
-                        img_path=os.path.join(settings.MEDIA_ROOT,selectData.pic_thumb)
-                    image_data = open(img_path,"rb").read() 
-                    return HttpResponse(image_data,content_type="image/png") 
+                        img_path=os.path.join(settings.MEDIA_URL,selectData.pic_thumb)
+                    # image_data = open(img_path,"rb").read() 
+                    return redirect(settings.AIGISSS_HOST+img_path) 
         except:
             img_path=os.path.join(settings.MEDIA_ROOT,'images/webp/default.webp')
-            image_data = open(img_path,"rb").read() 
-            return HttpResponse(image_data,content_type="image/png")
+            # image_data = open(img_path,"rb").read() 
+            return redirect(settings.AIGISSS_HOST+img_path) 
 
 
