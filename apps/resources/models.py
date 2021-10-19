@@ -12,6 +12,8 @@ import uuid
 
 THUMB_ROOT = "images/thumb/"  # 这个是最终的缩略图要保存的路径
 WEBP_ROOT = "images/webp/"  # 这个是最终的缩略图要保存的路径
+THUMB_PATH = "thumb"
+WEBP_PATH = "webp"
 
 # Create your models here.
 
@@ -135,7 +137,6 @@ class ImageSource(models.Model):
         imageName, _ = os.path.splitext(os.path.basename(self.pic.url))
         relate_thumb_path = os.path.join(THUMB_ROOT, filename)
         relate_webp_path = os.path.join(WEBP_ROOT, imageName+'.webp')
-        print('relate_webp_path',relate_webp_path)
         pic_thumb(self.pic.path)
         pic_webp(self.pic.path)
         self.pic_thumb = ImageFieldFile(
@@ -161,3 +162,128 @@ class ImageMatch(models.Model):
         verbose_name = '图片选择'
         verbose_name_plural = verbose_name
         ordering = ['id']
+
+
+def upload_gallery_photo(instance, filename):
+    return f"images/gallery/{instance.name}/{filename}"
+
+
+def pic_thumb2(savedPath):
+    if not savedPath:
+        return
+    thumb_pixbuf = make_thumb(savedPath)
+    thumb_pixbuf.save(savedPath)
+
+
+class Gallery(models.Model):
+    id = models.AutoField(primary_key=True, verbose_name="ID")
+    name = models.CharField(max_length=120)
+    image = models.ImageField(
+        upload_to=upload_gallery_photo, verbose_name="封面", null=True, blank=True)
+
+    def save(self):
+        super(Gallery, self).save()  # 将上传的图片先保存一下，否则报错
+        if not self.image:
+            return
+        pic_thumb2(self.image.path)
+
+    class Meta:
+        verbose_name = '相册'
+        verbose_name_plural = verbose_name
+        ordering = ['-id']
+
+    def __str__(self):
+        return self.name
+
+
+def upload_gallery_image(instance, filename):
+    return f"images/gallery/{instance.gallery.name}/{filename}"
+
+
+def pic_size(path):
+    if not path:
+        return
+
+    pixbuf = Image.open(path)
+    width, height = pixbuf.size
+    return '{0}.{1}'.format(width, height)
+
+
+def save_image_thumb_webp(instance, thumbPath, webpPath, size=180):
+    imagePath = instance.image.path
+    pixbuf = Image.open(imagePath)
+    print('webpPath', webpPath,)
+    thumb_abspath = str(settings.MEDIA_ROOT) + '/'+thumbPath
+    webp_abspath = str(settings.MEDIA_ROOT)+'/'+webpPath
+    webp_path = str(settings.MEDIA_ROOT) + f'/images/gallery/{instance.gallery.name}/webp'
+    thumb_path = str(settings.MEDIA_ROOT) + f'/images/gallery/{instance.gallery.name}/thumb'
+    if not os.path.exists(webp_path):
+        os.makedirs(webp_path)
+    if not os.path.exists(thumb_path):
+        os.makedirs(thumb_path)
+    im = pixbuf.convert("RGB")
+    im.save(webp_abspath, 'webp')
+    width, height = pixbuf.size
+
+    if width > size:
+        delta = width / size
+        height = int(height / delta)
+        pixbuf.thumbnail((size, height), Image.ANTIALIAS)
+    im.save(os.path.abspath(thumb_abspath))
+
+
+def image_thumb(savedPath):
+    thumb_pixbuf = make_thumb(savedPath)
+    filename = os.path.basename(savedPath)
+    relate_thumb_path = os.path.join(THUMB_ROOT, filename)
+    thumb_abspath = os.path.join(settings.MEDIA_ROOT, THUMB_ROOT)
+    thumb_path = os.path.join(settings.MEDIA_ROOT, relate_thumb_path)
+    if not os.path.exists(thumb_abspath):
+        os.makedirs(thumb_abspath)
+    thumb_pixbuf.save(os.path.abspath(thumb_path))
+
+
+def image_webp(picpath):
+    imageName, _ = os.path.splitext(os.path.basename(picpath))
+    webp_path = os.path.join(settings.MEDIA_ROOT, WEBP_ROOT)
+    if not os.path.exists(webp_path):
+        os.makedirs(webp_path)
+    outputPath = webp_path + '/' + imageName+".webp"
+    im = Image.open(picpath).convert("RGB")
+    im.save(outputPath, 'webp')
+
+
+def upload_gallery_image_path(instance, addpath, filename):
+    return f"images/gallery/{instance.gallery.name}/{addpath}/{filename}"
+
+
+class Photos(models.Model):
+    id = models.AutoField(primary_key=True, verbose_name="ID")
+    image = models.ImageField(upload_to=upload_gallery_image)
+    gallery = models.ForeignKey(
+        Gallery, on_delete=models.CASCADE, related_name="images")
+    image_thumb = models.ImageField(upload_to='images/thumb', null=True)
+    image_webp = models.ImageField(upload_to='images/webp', null=True)
+    size = models.CharField(max_length=200, null=True, blank=True,
+                            verbose_name='大小')
+    description = models.CharField(max_length=200, null=True, blank=True,
+                                   verbose_name='描述')
+
+    def save(self):
+        super(Photos, self).save()  # 将上传的图片先保存一下，否则报错
+        sizeStr = pic_size(self.image.path)
+        self.size = sizeStr
+
+        filename = os.path.basename(self.image.url)
+        # imageName, _ = os.path.splitext(os.path.basename(self.pic.url))
+        relate_thumb_path = upload_gallery_image_path(
+            self, THUMB_PATH, filename)
+        relate_webp_path = upload_gallery_image_path(self, WEBP_PATH, filename)
+        webpPath0, _ = os.path.splitext(relate_webp_path)
+        outputPath = webpPath0 + ".webp"
+        save_image_thumb_webp(
+            self, relate_thumb_path, outputPath)
+        self.image_thumb = ImageFieldFile(
+            self, self.image_thumb, relate_thumb_path)
+        self.image_webp = ImageFieldFile(self, self.image_webp, outputPath)
+        super(Photos, self).save()  # 再保存一下

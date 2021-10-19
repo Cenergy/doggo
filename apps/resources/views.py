@@ -135,7 +135,7 @@ class GithubContritutions(APIView):
                     if img_info.type== 1:
                         img_path=os.path.join(settings.MEDIA_URL,selectData.pic_thumb)
                     # image_data = open(img_path,"rb").read() 
-                    return redirect(settings.AIGISSS_HOST+img_path) 
+                    return redirect(settings.AIGISSS_HOST+img_path,permanent=True) 
         except:
             img_path=os.path.join(settings.MEDIA_ROOT,'images/webp/default.webp')
             # image_data = open(img_path,"rb").read() 

@@ -46,7 +46,7 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
 ]
 
 # SESSION_COOKIE_DOMAIN = "aigisss.com"  #这个设置之后开发admin就登陆不上
-AIGISSS_HOST='https://api.aigisss.com'
+AIGISSS_HOST = 'https://api.aigisss.com'
 
 AUTH_USER_MODEL = 'users.UserProfile'
 
@@ -163,12 +163,12 @@ WSGI_APPLICATION = 'doggo.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 # 连接MySQL数据库
 # DATABASES = {
 #     'default': {
@@ -181,16 +181,16 @@ WSGI_APPLICATION = 'doggo.wsgi.application'
 #     }
 # }
 # 连接postgreSQL数据库
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'aigisss',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres.neng',
-        'HOST': '127.0.0.1',
-        'PORT': '9555',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'aigisss',
+#         'USER': 'postgres',
+#         'PASSWORD': 'postgres.neng',
+#         'HOST': '127.0.0.1',
+#         'PORT': '9555',
+#     }
+# }
 
 
 # Password validation
