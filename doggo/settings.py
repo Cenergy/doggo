@@ -59,7 +59,7 @@ AUTHENTICATION_BACKENDS = [
     'users.views.CustomBackend',
 ]
 
-SOCIAL_AUTH_POSTGRES_JSONFIELD = True
+SOCIAL_AUTH_JSONFIELD_ENABLED = True
 SOCIAL_AUTH_URL_NAMESPACE = 'social'  # 新增
 SOCIAL_AUTH_GITHUB_KEY = 'cbd780d104e230cca877'
 SOCIAL_AUTH_GITHUB_SECRET = '0d101317cde90ca8cb66b6aa56532af62d1ddc49'
@@ -120,6 +120,7 @@ INSTALLED_APPS = [
     'social_django',
     'captcha',
     'rest_framework',
+    'location_field',
     'drf_yasg',
     'corsheaders',
     'import_export',
@@ -352,3 +353,8 @@ BAIDU_MAP_KEY = 'tDM947ZCUIZXzs7ohNHsz77QkU22WzDa'
 
 # 图灵api
 TURING_API_KEY = 'bf61c090a1bc4cfabc43e20e2d5b307b'
+
+LOCATION_FIELD = {
+    'map.provider': 'openstreetmap',
+    'search.provider': 'nominatim',
+}

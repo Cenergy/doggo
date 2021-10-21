@@ -8,6 +8,7 @@ from PIL import Image
 import os
 import datetime
 import uuid
+from location_field.models.plain import PlainLocationField
 
 
 THUMB_ROOT = "images/thumb/"  # 这个是最终的缩略图要保存的路径
@@ -256,7 +257,6 @@ def image_webp(picpath):
 def upload_gallery_image_path(instance, addpath, filename):
     return f"images/gallery/{instance.gallery.name}/{addpath}/{filename}"
 
-
 class Photos(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
     image = models.ImageField(upload_to=upload_gallery_image)
@@ -268,6 +268,8 @@ class Photos(models.Model):
                             verbose_name='大小')
     description = models.CharField(max_length=200, null=True, blank=True,
                                    verbose_name='描述')
+    location = PlainLocationField(based_fields=['description'], zoom=3, null=True, blank=True,default='22.2876834,120.1607606')
+
 
     def save(self):
         super(Photos, self).save()  # 将上传的图片先保存一下，否则报错

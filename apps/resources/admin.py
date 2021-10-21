@@ -7,6 +7,7 @@ from django.conf import settings
 from django.utils.safestring import mark_safe  # imageField
 from .models import Gallery, Photos
 from .models import SourcesCore, ImageSource,ImageMatch
+from django.forms.widgets import TextInput
 
 # Register your models here.
 
@@ -111,7 +112,7 @@ class ImageMatchAdmin(ImportExportModelAdmin):
 class PhotosInline(admin.StackedInline):
     model = Photos
     verbose_name='相册'
-    fields = ['image']
+    fields = ['image','description','location']
     readonly_fields = ('size','image_thumb','image_webp')
     # def has_add_permission(self, request, obj=None): 
     #     return False
