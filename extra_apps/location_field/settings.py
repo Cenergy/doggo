@@ -4,10 +4,13 @@ LOCATION_FIELD_PATH = settings.STATIC_URL + 'location_field'
 
 LOCATION_FIELD = {
     'map.provider': 'google',
-    'map.zoom': 13,
+    'map.zoom': 12,
+    'map.center': '114.0160,22.72645',
 
     'search.provider': 'google',
     'search.suffix': '',
+    'map.widget_width': '500px',
+    'map.widget_height': '250px',
 
     # Google
     'provider.google.api': '//maps.google.com/maps/api/js',

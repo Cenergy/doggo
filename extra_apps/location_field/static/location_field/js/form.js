@@ -573,7 +573,7 @@ var SequentialLoader = function () {
         pluginOptions = {
           id: "map_" + name,
           inputField: el,
-          latLng: el.val() || "0,0",
+          latLng: el.val() || options["map.center"] || "120,30",
           suffix: options["search.suffix"],
           path: options["resources.root_path"],
           provider: options["map.provider"],

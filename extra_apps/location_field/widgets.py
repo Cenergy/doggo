@@ -51,11 +51,14 @@ class LocationWidget(widgets.TextInput):
         kwargs = {}
         if renderer is not None:
             kwargs['renderer'] = renderer
-        text_input = super(LocationWidget, self).render(name, value, attrs=attrs, **kwargs)
+        text_input = super(LocationWidget, self).render(
+            name, value, attrs=attrs, **kwargs)
 
         return render_to_string('location_field/map_widget.html', {
             'field_name': name,
-            'field_input': mark_safe(text_input)
+            'field_input': mark_safe(text_input),
+            'map_widget_width': self.options['map.widget_width'],
+            'map_widget_height': self.options['map.widget_height'],
         })
 
     @property

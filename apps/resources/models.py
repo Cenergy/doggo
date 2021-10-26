@@ -177,10 +177,17 @@ def pic_thumb2(savedPath):
 
 
 class Gallery(models.Model):
+    GALLERY_TYPE = (
+        (0, "风景"),
+        (1, "个人"),
+        (2, "其他"),
+    )
     id = models.AutoField(primary_key=True, verbose_name="ID")
     name = models.CharField(max_length=120)
     image = models.ImageField(
         upload_to=upload_gallery_photo, verbose_name="封面", null=True, blank=True)
+    type = models.SmallIntegerField(
+        choices=GALLERY_TYPE, verbose_name="相册类型", help_text="相册类型", default=0)
 
     def save(self):
         super(Gallery, self).save()  # 将上传的图片先保存一下，否则报错
@@ -268,7 +275,9 @@ class Photos(models.Model):
                             verbose_name='大小')
     description = models.CharField(max_length=200, null=True, blank=True,
                                    verbose_name='描述')
-    location = PlainLocationField(based_fields=['description'], zoom=3, null=True, blank=True,default='120.1607606,22.2876834')
+    adress = models.CharField(max_length=200, null=True, blank=True,
+                                   verbose_name='地址')
+    location = PlainLocationField(based_fields=['adress'], zoom=3, null=True, blank=True)
 
 
     def save(self):
