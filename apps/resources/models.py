@@ -268,7 +268,7 @@ class Photos(models.Model):
                             verbose_name='大小')
     description = models.CharField(max_length=200, null=True, blank=True,
                                    verbose_name='描述')
-    location = PlainLocationField(based_fields=['description'], zoom=3, null=True, blank=True,default='22.2876834,120.1607606')
+    location = PlainLocationField(based_fields=['description'], zoom=3, null=True, blank=True,default='120.1607606,22.2876834')
 
 
     def save(self):

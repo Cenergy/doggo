@@ -95,6 +95,7 @@ var SequentialLoader = function () {
 
       render: function () {
         this.$id = $("#" + this.options.id);
+        console.log("rdapp - this.$id", this.$id);
 
         if (!this.providers.test(this.options.provider)) {
           this.error(
@@ -130,7 +131,7 @@ var SequentialLoader = function () {
       },
 
       fill: function (latLng) {
-      console.log("rdapp - latLng", latLng)
+        console.log("rdapp - latLng", latLng);
         this.options.inputField.val(latLng[0] + "," + latLng[1]);
       },
 
@@ -379,7 +380,7 @@ var SequentialLoader = function () {
       },
 
       _getMap: function (mapOptions) {
-        console.log("rdapp - ol.layer", ol.layer)
+        console.log("rdapp - ol.layer", ol.layer);
         var map = new ol.Map({
           target: this.options.id,
           layers: [
@@ -387,8 +388,8 @@ var SequentialLoader = function () {
             new ol.layer.Tile({
               source: new ol.source.XYZ({
                 url:
-                'https://map.geoq.cn/arcgis/rest/services/' +
-                'ChinaOnlineCommunity/MapServer/tile/{z}/{y}/{x}',
+                  "https://map.geoq.cn/arcgis/rest/services/" +
+                  "ChinaOnlineCommunity/MapServer/tile/{z}/{y}/{x}",
               }),
             }),
           ],
@@ -486,11 +487,11 @@ var SequentialLoader = function () {
         //   marker.setLatLng(e.latlng);
         // });
         map.on("click", function (evt) {
-          console.log("rdapp - evt", evt)
+          console.log("rdapp - evt", evt);
           const evtCoord = ol.proj.fromLonLat(
             ol.proj.transform(evt.coordinate, "EPSG:3857", "EPSG:4326")
           );
-          console.log("rdapp - evtCoord", evt.coordinate)
+          console.log("rdapp - evtCoord", evt.coordinate);
           const geo = new ol.geom.Point(evtCoord);
           MarkerIcon.setGeometry(geo);
           self.fill(ol.proj.toLonLat(evt.coordinate));
@@ -535,14 +536,13 @@ var SequentialLoader = function () {
   };
 
   function dataLocationFieldObserver(callback) {
-    console.log("rdapp - dataLocationFieldObserver - callback", callback)
     function _findAndEnableDataLocationFields() {
       var dataLocationFields = $("input[data-location-field-options]");
 
       dataLocationFields
         .filter(":not([data-location-field-observed])")
-        .attr("data-location-field-observed", true)
-        .each(callback);
+        .attr("data-location-field-observed", true);
+      callback();
     }
 
     var observer = new MutationObserver(function (mutations) {
@@ -560,76 +560,148 @@ var SequentialLoader = function () {
   }
 
   dataLocationFieldObserver(function () {
-    var el = $(this);
+    $("body").on("click", ".map_location_input", function (evt) {
+      var el = $($(evt.currentTarget).find("input")[0]);
+      var mapInited = $(el).attr("map-inited") || false;
+      console.log("rdapp - mapInited", mapInited);
+      if (mapInited) return;
 
-    var name = el.attr("name"),
-      options = el.data("location-field-options"),
-      basedFields = options.field_options.based_fields,
-      pluginOptions = {
-        id: "map_" + name,
-        inputField: el,
-        latLng: el.val() || "0,0",
-        suffix: options["search.suffix"],
-        path: options["resources.root_path"],
-        provider: options["map.provider"],
-        searchProvider: options["search.provider"],
-        providerOptions: {
-          google: {
-            api: options["provider.google.api"],
-            apiKey: options["provider.google.api_key"],
-            mapType: options["provider.google.map_type"],
+      var name = el.attr("name"),
+        options = el.data("location-field-options"),
+        basedFields = options.field_options.based_fields,
+        pluginOptions = {
+          id: "map_" + name,
+          inputField: el,
+          latLng: el.val() || "0,0",
+          suffix: options["search.suffix"],
+          path: options["resources.root_path"],
+          provider: options["map.provider"],
+          searchProvider: options["search.provider"],
+          providerOptions: {
+            google: {
+              api: options["provider.google.api"],
+              apiKey: options["provider.google.api_key"],
+              mapType: options["provider.google.map_type"],
+            },
+            mapbox: {
+              access_token: options["provider.mapbox.access_token"],
+            },
+            yandex: {
+              apiKey: options["provider.yandex.api_key"],
+            },
           },
-          mapbox: {
-            access_token: options["provider.mapbox.access_token"],
+          mapOptions: {
+            zoom: options["map.zoom"],
           },
-          yandex: {
-            apiKey: options["provider.yandex.api_key"],
-          },
-        },
-        mapOptions: {
-          zoom: options["map.zoom"],
-        },
-      };
+        };
 
-    // prefix
-    var prefixNumber;
+      // prefix
+      var prefixNumber;
 
-    try {
-      prefixNumber = name.match(/-(\d+)-/)[1];
-    } catch (e) {}
+      try {
+        prefixNumber = name.match(/-(\d+)-/)[1];
+      } catch (e) {}
 
-    if (options.field_options.prefix) {
-      var prefix = options.field_options.prefix;
+      if (options.field_options.prefix) {
+        var prefix = options.field_options.prefix;
 
-      if (prefixNumber != null) {
-        prefix = prefix.replace(/__prefix__/, prefixNumber);
+        if (prefixNumber != null) {
+          prefix = prefix.replace(/__prefix__/, prefixNumber);
+        }
+
+        basedFields = basedFields.map(function (n) {
+          return prefix + n;
+        });
       }
 
-      basedFields = basedFields.map(function (n) {
-        return prefix + n;
-      });
-    }
+      // based fields
+      pluginOptions.basedFields = $(
+        basedFields
+          .map(function (n) {
+            return "#id_" + n;
+          })
+          .join(",")
+      );
 
-    // based fields
-    pluginOptions.basedFields = $(
-      basedFields
-        .map(function (n) {
-          return "#id_" + n;
-        })
-        .join(",")
-    );
+      // render
+      $.locationField(pluginOptions).render();
+      $(el).attr("map-inited", true);
+    });
+    // for (let k = 0; k < doms.length; k++) {
+    //   doms[k].index = k;
+    //   //切换栏目时
+    //   doms[k].onclick = function () {
+    //     var cuerrentDom = doms[k].querySelector(".map-widget");
+    //     cuerrentDom.style.display = "flex";
 
-    // render
-    $.locationField(pluginOptions).render();
-    var doms = $(".map_location_input");
-    for (let k = 0; k < doms.length; k++) {
-      doms[k].index = k;
-      //切换栏目时
-      doms[k].onclick = function () {
-        var cuerrentDom = doms[k].querySelector(".map-widget");
-        cuerrentDom.style.display = "flex";
-      };
-    }
+    //     var el = $(doms[k].querySelector("input"));
+    //     var mapInited = $(el).attr("map-inited") || false;
+    //     console.log("rdapp - mapInited", mapInited);
+    //     if (mapInited) return;
+    //     console.log("rdapp - el", el);
+
+    //     var name = el.attr("name"),
+    //       options = el.data("location-field-options"),
+    //       basedFields = options.field_options.based_fields,
+    //       pluginOptions = {
+    //         id: "map_" + name,
+    //         inputField: el,
+    //         latLng: el.val() || "0,0",
+    //         suffix: options["search.suffix"],
+    //         path: options["resources.root_path"],
+    //         provider: options["map.provider"],
+    //         searchProvider: options["search.provider"],
+    //         providerOptions: {
+    //           google: {
+    //             api: options["provider.google.api"],
+    //             apiKey: options["provider.google.api_key"],
+    //             mapType: options["provider.google.map_type"],
+    //           },
+    //           mapbox: {
+    //             access_token: options["provider.mapbox.access_token"],
+    //           },
+    //           yandex: {
+    //             apiKey: options["provider.yandex.api_key"],
+    //           },
+    //         },
+    //         mapOptions: {
+    //           zoom: options["map.zoom"],
+    //         },
+    //       };
+
+    //     // prefix
+    //     var prefixNumber;
+
+    //     try {
+    //       prefixNumber = name.match(/-(\d+)-/)[1];
+    //     } catch (e) {}
+
+    //     if (options.field_options.prefix) {
+    //       var prefix = options.field_options.prefix;
+
+    //       if (prefixNumber != null) {
+    //         prefix = prefix.replace(/__prefix__/, prefixNumber);
+    //       }
+
+    //       basedFields = basedFields.map(function (n) {
+    //         return prefix + n;
+    //       });
+    //     }
+
+    //     // based fields
+    //     pluginOptions.basedFields = $(
+    //       basedFields
+    //         .map(function (n) {
+    //           return "#id_" + n;
+    //         })
+    //         .join(",")
+    //     );
+
+    //     // render
+    //     $.locationField(pluginOptions).render();
+    //     $(el).attr("map-inited", true);
+    //   };
+    // }
   });
 })(jQuery || django.jQuery);
 

@@ -20,7 +20,7 @@ LOCATION_FIELD = {
     'provider.mapbox.id': 'mapbox.streets',
 
     # OpenStreetMap
-    'provider.openstreetmap.max_zoom': 18,
+    'provider.openstreetmap.max_zoom': 20,
 
     # misc
     'resources.root_path': LOCATION_FIELD_PATH,
