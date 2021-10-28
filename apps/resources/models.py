@@ -5,7 +5,7 @@ from django.db import models
 from django.db.models.fields.files import ImageFieldFile
 from django.conf import settings
 from PIL import Image
-import os
+import os,shutil
 import datetime
 import uuid
 from location_field.models.plain import PlainLocationField
@@ -166,7 +166,10 @@ class ImageMatch(models.Model):
 
 
 def upload_gallery_photo(instance, filename):
-    return f"images/gallery/{instance.name}/{filename}"
+    if instance.id is None:
+        return f"images/gallery/cover/{instance.name}/{filename}"
+    else:
+        return f"images/gallery/{instance.id}/{filename}"
 
 
 def pic_thumb2(savedPath):
@@ -183,17 +186,21 @@ class Gallery(models.Model):
         (2, "其他"),
     )
     id = models.AutoField(primary_key=True, verbose_name="ID")
-    name = models.CharField(max_length=120)
+    name = models.CharField(max_length=120,verbose_name="名称")
     image = models.ImageField(
         upload_to=upload_gallery_photo, verbose_name="封面", null=True, blank=True)
     type = models.SmallIntegerField(
         choices=GALLERY_TYPE, verbose_name="相册类型", help_text="相册类型", default=0)
+    description = models.CharField(max_length=300, null=True, blank=True,
+                                   verbose_name='描述')
 
     def save(self):
         super(Gallery, self).save()  # 将上传的图片先保存一下，否则报错
         if not self.image:
             return
+        filename = os.path.basename(self.image.path)
         pic_thumb2(self.image.path)
+        # shutil.move(self.image.path,settings.MEDIA_ROOT+'/'+upload_gallery_photo(self,filename))
 
     class Meta:
         verbose_name = '相册'
@@ -205,7 +212,7 @@ class Gallery(models.Model):
 
 
 def upload_gallery_image(instance, filename):
-    return f"images/gallery/{instance.gallery.name}/{filename}"
+    return f"images/gallery/{instance.gallery.id}/{filename}"
 
 
 def pic_size(path):
@@ -223,8 +230,10 @@ def save_image_thumb_webp(instance, thumbPath, webpPath, size=180):
     print('webpPath', webpPath,)
     thumb_abspath = str(settings.MEDIA_ROOT) + '/'+thumbPath
     webp_abspath = str(settings.MEDIA_ROOT)+'/'+webpPath
-    webp_path = str(settings.MEDIA_ROOT) + f'/images/gallery/{instance.gallery.name}/webp'
-    thumb_path = str(settings.MEDIA_ROOT) + f'/images/gallery/{instance.gallery.name}/thumb'
+    webp_path = str(settings.MEDIA_ROOT) + \
+        f'/images/gallery/{instance.gallery.id}/webp'
+    thumb_path = str(settings.MEDIA_ROOT) + \
+        f'/images/gallery/{instance.gallery.id}/thumb'
     if not os.path.exists(webp_path):
         os.makedirs(webp_path)
     if not os.path.exists(thumb_path):
@@ -262,7 +271,8 @@ def image_webp(picpath):
 
 
 def upload_gallery_image_path(instance, addpath, filename):
-    return f"images/gallery/{instance.gallery.name}/{addpath}/{filename}"
+    return f"images/gallery/{instance.gallery.id}/{addpath}/{filename}"
+
 
 class Photos(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
@@ -276,9 +286,9 @@ class Photos(models.Model):
     description = models.CharField(max_length=200, null=True, blank=True,
                                    verbose_name='描述')
     adress = models.CharField(max_length=200, null=True, blank=True,
-                                   verbose_name='地址')
-    location = PlainLocationField(based_fields=['adress'], zoom=3, null=True, blank=True)
-
+                              verbose_name='地址')
+    location = PlainLocationField(
+        based_fields=['adress'], zoom=3, null=True, blank=True)
 
     def save(self):
         super(Photos, self).save()  # 将上传的图片先保存一下，否则报错
@@ -298,3 +308,4 @@ class Photos(models.Model):
             self, self.image_thumb, relate_thumb_path)
         self.image_webp = ImageFieldFile(self, self.image_webp, outputPath)
         super(Photos, self).save()  # 再保存一下
+    

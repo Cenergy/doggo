@@ -12,7 +12,6 @@ from django.forms.widgets import TextInput
 
 # Register your models here.
 
-
 @admin.register(SourcesCore)
 class CategoryAdmin(ImportExportModelAdmin):
     list_display = ('id', 'sourcename')
@@ -33,13 +32,16 @@ def del_file(filepath):
     :param filepath: 路径
     :return:
     """
-    del_list = os.listdir(filepath)
-    for f in del_list:
-        file_path = os.path.join(filepath, f)
-        if os.path.isfile(file_path):
-            os.remove(file_path)
-        elif os.path.isdir(file_path):
-            shutil.rmtree(file_path)
+    try:
+        del_list = os.listdir(filepath)
+        for f in del_list:
+            file_path = os.path.join(filepath, f)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+    except:
+        pass
 
 
 def delete_dir(dir):
@@ -80,7 +82,11 @@ class ImageSourceAdmin(ImportExportModelAdmin):
 @receiver(post_delete, sender=Photos)
 def delete_upload_files(sender, instance, **kwargs):
     files = getattr(instance, 'image')
+    thumb = getattr(instance, 'image_thumb')
+    webp = getattr(instance, 'image_webp')
     delete_image(files)
+    delete_image(thumb)
+    delete_image(webp)
 
 # @receiver(post_save, sender= Photos)
 # def delete_old_image(sender, instance, **kwargs):
@@ -100,7 +106,37 @@ def pre_save_image(sender, instance, *args, **kwargs):
         except:
             new_img = None
         if new_img != old_img:
-            import os
+            if os.path.exists(old_img):
+                os.remove(old_img)
+    except:
+        pass
+# 更新image_thumb的操作
+@receiver(pre_save, sender=Photos)
+def pre_save_image(sender, instance, *args, **kwargs):
+    """ instance old image_thumb file will delete from os """
+    try:
+        old_img = instance.__class__.objects.get(id=instance.id).image_thumb.path
+        try:
+            new_img = instance.image_thumb.path
+        except:
+            new_img = None
+        if new_img != old_img:
+            if os.path.exists(old_img):
+                os.remove(old_img)
+    except:
+        pass
+    
+# 更新image_webp的操作
+@receiver(pre_save, sender=Photos)
+def pre_save_image(sender, instance, *args, **kwargs):
+    """ instance old image_webp file will delete from os """
+    try:
+        old_img = instance.__class__.objects.get(id=instance.id).image_webp.path
+        try:
+            new_img = instance.image_webp.path
+        except:
+            new_img = None
+        if new_img != old_img:
             if os.path.exists(old_img):
                 os.remove(old_img)
     except:
@@ -110,7 +146,9 @@ def pre_save_image(sender, instance, *args, **kwargs):
 @receiver(post_delete, sender=Gallery)
 def delete_upload_files(sender, instance, **kwargs):
     files = getattr(instance, 'name')
-    delete_dir('/images/gallery/'+str(files))
+    fileId = getattr(instance, 'id')
+    delete_dir('/images/gallery/'+str(fileId))
+    delete_dir('/images/gallery/cover/'+str(files))
 
 
 @admin.register(ImageMatch)
@@ -133,3 +171,4 @@ class GalleryAdmin(admin.ModelAdmin):
     inlines = [
         PhotosInline
     ]
+    list_display = ('id', 'name', 'type', 'description')

@@ -1,35 +1,39 @@
 # Create your views here.
 import os
+import json
 import math
 from django.http.response import HttpResponse
 import pandas as pd
 
 from django.views import View
 from django.db import connection
-from django.shortcuts import render,redirect
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import mixins,viewsets,filters
+from rest_framework import mixins, viewsets, filters
 from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from django.conf import settings
+from django.core.serializers import serialize
 
 
-from .models import SourcesCore
+from .models import SourcesCore, Photos, Gallery
 from .filters import SourcesCoreFilter
-from .serializers import SourcesCoreSerializers
+from .serializers import SourcesCoreSerializers, GallerySerializers
 from utils.get_sources import get_source, get_source_by_id
 from utils.tuling_answer import get_tuling_answer
 
 
 sysfile = os.path.abspath('.')
 
+
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'
     max_page_size = 1000
     page_query_param = "page"
+
 
 class SourcesCoreViewset(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """
@@ -121,24 +125,43 @@ class GithubContritutions(APIView):
             data = pd.read_sql(query_sql, connection)
 
             if len(data):
-                img_id=data['img_id'].iloc[0]
-                img_type=data['type'].iloc[0]
-                img_info=data.iloc[0]
+                img_id = data['img_id'].iloc[0]
+                img_type = data['type'].iloc[0]
+                img_info = data.iloc[0]
                 query_img = "SELECT * FROM resources_imagesource where id={0}".format(
                     img_info.img_id)
                 imageData = pd.read_sql(query_img, connection)
                 if len(imageData):
-                    selectData=imageData.iloc[0]
-                    img_path=os.path.join(settings.MEDIA_URL,selectData.pic_webp)
-                    if img_info.type== -1:
-                        img_path=os.path.join(settings.MEDIA_URL,selectData.pic)
-                    if img_info.type== 1:
-                        img_path=os.path.join(settings.MEDIA_URL,selectData.pic_thumb)
-                    # image_data = open(img_path,"rb").read() 
-                    return redirect(settings.AIGISSS_HOST+img_path,permanent=True) 
+                    selectData = imageData.iloc[0]
+                    img_path = os.path.join(
+                        settings.MEDIA_URL, selectData.pic_webp)
+                    if img_info.type == -1:
+                        img_path = os.path.join(
+                            settings.MEDIA_URL, selectData.pic)
+                    if img_info.type == 1:
+                        img_path = os.path.join(
+                            settings.MEDIA_URL, selectData.pic_thumb)
+                    # image_data = open(img_path,"rb").read()
+                    return redirect(settings.AIGISSS_HOST+img_path, permanent=True)
         except:
-            img_path=os.path.join(settings.MEDIA_ROOT,'images/webp/default.webp')
-            # image_data = open(img_path,"rb").read() 
-            return redirect(settings.AIGISSS_HOST+img_path) 
+            img_path = os.path.join(
+                settings.MEDIA_ROOT, 'images/webp/default.webp')
+            # image_data = open(img_path,"rb").read()
+            return redirect(settings.AIGISSS_HOST+img_path)
 
 
+class GalleryInfos(APIView):
+    def get(self, request):
+        try:
+            # origin_data = Photos.objects.all()
+            contexts = Gallery.objects.all().order_by('id')
+            serializer = GallerySerializers(contexts, many=True)
+            query_sql = "select * from resources_photos"
+            all_data = pd.read_sql(query_sql, connection)
+            all_photoes = all_data.to_json(orient='records')
+            data = {"code": 200, "msg": "success", "data": {
+                "photos": json.loads(all_photoes), "galleries": serializer.data}}
+            # serialized_data = serialize('json',origin_data)
+        except:
+            data = {"code": 400, "msg": "", "count": 1, "data": 2}
+        return Response(data)

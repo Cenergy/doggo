@@ -10,7 +10,7 @@ __date__ = '10/8/18 下午4:26'
 
 from rest_framework import serializers
 
-from .models import SourcesCore
+from .models import SourcesCore,Gallery,Photos
 
 ###SourcesCore
 
@@ -21,3 +21,7 @@ class  SourcesCoreSerializers(serializers.ModelSerializer):
 
 
 
+class GallerySerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Gallery
+        fields="__all__"
