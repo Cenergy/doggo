@@ -158,7 +158,8 @@ class GalleryInfos(APIView):
             serializer = GallerySerializers(contexts, many=True)
             query_sql = "select * from resources_photos"
             all_data = pd.read_sql(query_sql, connection)
-            all_photoes = all_data.to_json(orient='records')
+            # all_photoes = all_data.to_json(orient='records')
+            all_photoes = all_data.groupby('gallery_id').apply(lambda x: json.loads(x.to_json(orient='records'))).to_json()
             data = {"code": 200, "msg": "success", "data": {
                 "photos": json.loads(all_photoes), "galleries": serializer.data}}
             # serialized_data = serialize('json',origin_data)
