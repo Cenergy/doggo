@@ -24,4 +24,4 @@ def delRegImage():
             os.remove(f)
 
 def getGalleryCache():
-    requests.get('/resources/galleryCache/')
+    requests.get('https://api.aigisss.com/resources/galleryCache/')
