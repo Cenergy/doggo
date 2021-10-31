@@ -1,5 +1,5 @@
 import shutil
-import os
+import os,requests
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 from django.db.models.signals import post_delete, pre_save

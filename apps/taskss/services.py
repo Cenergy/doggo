@@ -1,7 +1,7 @@
 from django.db import connection
 
 
-import os, sys,time,datetime
+import os, sys,time,datetime,requests
 
 from doggo.settings import MEDIA_ROOT,STATIC_ROOT
  
@@ -23,4 +23,5 @@ def delRegImage():
         if subDays>1:
             os.remove(f)
 
-
+def getGalleryCache():
+    requests.get('/resources/galleryCache/')

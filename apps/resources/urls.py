@@ -19,5 +19,6 @@ urlpatterns = [
     url(r'resources/$', views.SourcesList.as_view(), name="resources"),
     url(r'sources/$', views.SourcesListView.as_view(), name="sources"),
     url(r'galleries/$', views.GalleryInfos.as_view(), name="galleries"),
+    url(r'galleryCache/$', views.GalleryInfoCache.as_view(), name="galleriesCache"),
     path(r'images/<id>', csrf_exempt(views.GithubContritutions.as_view())),
 ]

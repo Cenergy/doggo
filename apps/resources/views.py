@@ -16,6 +16,7 @@ from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from django.conf import settings
 from django.core.serializers import serialize
+from django.core.cache import cache
 
 
 from .models import SourcesCore, Photos, Gallery
@@ -26,6 +27,7 @@ from utils.tuling_answer import get_tuling_answer
 
 
 sysfile = os.path.abspath('.')
+GALLERY_INFO_CACHE_KEY = 'gallery_info_cache_key'
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -149,8 +151,8 @@ class GithubContritutions(APIView):
             # image_data = open(img_path,"rb").read()
             return redirect(settings.AIGISSS_HOST+img_path)
 
-
-class GalleryInfos(APIView):
+# 生成缓存
+class GalleryInfoCache(APIView):
     def get(self, request):
         try:
             # origin_data = Photos.objects.all()
@@ -159,10 +161,35 @@ class GalleryInfos(APIView):
             query_sql = "select * from resources_photos"
             all_data = pd.read_sql(query_sql, connection)
             # all_photoes = all_data.to_json(orient='records')
-            all_photoes = all_data.groupby('gallery_id').apply(lambda x: json.loads(x.to_json(orient='records'))).to_json()
-            data = {"code": 200, "msg": "success", "data": {
-                "photos": json.loads(all_photoes), "galleries": serializer.data}}
+            all_photoes = all_data.groupby('gallery_id').apply(
+                lambda x: json.loads(x.to_json(orient='records'))).to_json()
             # serialized_data = serialize('json',origin_data)
+            galleries = {"photos": json.loads(
+                all_photoes), "galleries": serializer.data}
+            cache.set(GALLERY_INFO_CACHE_KEY, galleries,  timeout=None)
+            data = {"code": 200, "msg": "success", "data": galleries}
         except:
             data = {"code": 400, "msg": "", "count": 1, "data": 2}
+        return Response(data)
+
+
+class GalleryInfos(APIView):
+    def get(self, request):
+        try:
+            is_exist_key = cache.has_key(GALLERY_INFO_CACHE_KEY)
+            if is_exist_key:
+                galleries = cache.get(GALLERY_INFO_CACHE_KEY)
+            else:
+                contexts = Gallery.objects.all().order_by('id')
+                serializer = GallerySerializers(contexts, many=True)
+                query_sql = "select * from resources_photos"
+                all_data = pd.read_sql(query_sql, connection)
+                all_photoes = all_data.groupby('gallery_id').apply(
+                    lambda x: json.loads(x.to_json(orient='records'))).to_json()
+                galleries = {"photos": json.loads(
+                    all_photoes), "galleries": serializer.data}
+                cache.set(GALLERY_INFO_CACHE_KEY, galleries,  timeout=None)
+            data = {"code": 200, "msg": "success", "data": galleries}
+        except:
+            data = {"code": 400, "msg": "请求失败!", "count": 0, "data": {}}
         return Response(data)
