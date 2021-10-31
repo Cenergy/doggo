@@ -171,4 +171,4 @@ class GalleryAdmin(admin.ModelAdmin):
     inlines = [
         PhotosInline
     ]
-    list_display = ('id', 'name', 'type', 'description')
+    list_display = ('name', 'type', 'description')
