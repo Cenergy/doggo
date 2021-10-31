@@ -2,7 +2,7 @@ import shutil
 import os,requests
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
-from django.db.models.signals import post_delete, pre_save
+from django.db.models.signals import post_delete, pre_save,post_save
 from django.dispatch import receiver
 from django.conf import settings
 from django.utils.safestring import mark_safe  # imageField
@@ -94,6 +94,15 @@ def delete_upload_files(sender, instance, **kwargs):
 #         if instance._current_imagen_file != instance.image.path:
 #             instance._current_imagen_file.delete(save=False)
 
+# Gallery变更保存后的操作
+@receiver(post_save, sender=Gallery)
+@receiver(post_delete, sender=Gallery)
+def post_save_image(sender, instance, *args, **kwargs):
+    """ instance old image file will delete from os """
+    try:
+        requests.get('https://api.aigisss.com/resources/galleryCache/')
+    except:
+        pass
 
 @receiver(pre_save, sender=Photos)
 @receiver(pre_save, sender=Gallery)
