@@ -134,8 +134,8 @@ class ImageSource(models.Model):
 
     def save(self):
         super(ImageSource, self).save()  # 将上传的图片先保存一下，否则报错
-        filename = os.path.basename(self.pic.url)
-        imageName, _ = os.path.splitext(os.path.basename(self.pic.url))
+        filename = os.path.basename(self.pic.path)
+        imageName, _ = os.path.splitext(os.path.basename(self.pic.path))
         relate_thumb_path = os.path.join(THUMB_ROOT, filename)
         relate_webp_path = os.path.join(WEBP_ROOT, imageName+'.webp')
         pic_thumb(self.pic.path)
@@ -227,7 +227,6 @@ def pic_size(path):
 def save_image_thumb_webp(instance, thumbPath, webpPath, size=180):
     imagePath = instance.image.path
     pixbuf = Image.open(imagePath)
-    print('webpPath', webpPath,)
     thumb_abspath = str(settings.MEDIA_ROOT) + '/'+thumbPath
     webp_abspath = str(settings.MEDIA_ROOT)+'/'+webpPath
     webp_path = str(settings.MEDIA_ROOT) + \
@@ -295,7 +294,7 @@ class Photos(models.Model):
         sizeStr = pic_size(self.image.path)
         self.size = sizeStr
 
-        filename = os.path.basename(self.image.url)
+        filename = os.path.basename(self.image.path)
         # imageName, _ = os.path.splitext(os.path.basename(self.pic.url))
         relate_thumb_path = upload_gallery_image_path(
             self, THUMB_PATH, filename)
