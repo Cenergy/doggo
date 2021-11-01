@@ -21,6 +21,7 @@ from django.core.cache import cache
 
 from .models import SourcesCore, Photos, Gallery
 from .filters import SourcesCoreFilter
+from .utils import genGalleryCache
 from .serializers import SourcesCoreSerializers, GallerySerializers
 from utils.get_sources import get_source, get_source_by_id
 from utils.tuling_answer import get_tuling_answer
@@ -152,24 +153,11 @@ class GithubContritutions(APIView):
             return redirect(settings.AIGISSS_HOST+img_path)
 
 # 生成缓存
+
+
 class GalleryInfoCache(APIView):
     def get(self, request):
-        try:
-            # origin_data = Photos.objects.all()
-            contexts = Gallery.objects.all().order_by('id')
-            serializer = GallerySerializers(contexts, many=True)
-            query_sql = "select * from resources_photos"
-            all_data = pd.read_sql(query_sql, connection)
-            # all_photoes = all_data.to_json(orient='records')
-            all_photoes = all_data.groupby('gallery_id').apply(
-                lambda x: json.loads(x.to_json(orient='records'))).to_json()
-            # serialized_data = serialize('json',origin_data)
-            galleries = {"photos": json.loads(
-                all_photoes), "galleries": serializer.data}
-            cache.set(GALLERY_INFO_CACHE_KEY, galleries,  timeout=None)
-            data = {"code": 200, "msg": "success", "data": galleries}
-        except:
-            data = {"code": 400, "msg": "", "count": 1, "data": 2}
+        data = genGalleryCache()
         return Response(data)
 
 
