@@ -467,8 +467,8 @@ def list_split(items, n):
     return [items[i:i + n] for i in range(0, len(items), n)]
 
 
-def getdata(name):
-    gitpage = requests.get("https://hub.fastgit.org/" + name)
+def getGithubData(name):
+    gitpage = requests.get("https://hub.fastgit.xyz/" + name)
     data = gitpage.text
     datadatereg = re.compile(r'data-date="(.*?)" data-level')
     datacountreg = re.compile(r'data-count="(.*?)" data-date')
@@ -498,7 +498,7 @@ class GithubContritutions(APIView):
             if is_exist_key:
                 return Response(cache.get(cache_key_string), status=status.HTTP_200_OK)
             else:
-                github_data = getdata(username)
+                github_data = getGithubData(username)
                 cache.set(cache_key_string, github_data, 60*60*24)
                 return Response(github_data, status=status.HTTP_200_OK)
             # return Response(getdata(username), status=status.HTTP_200_OK)
