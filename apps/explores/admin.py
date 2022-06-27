@@ -6,6 +6,6 @@ from import_export.admin import ImportExportModelAdmin
 
 @admin.register(WebSiteConfig)
 class WebBlogConfigAdmin(ImportExportModelAdmin):
-    list_display = ('title', 'save_path', 'description')
+    list_display = ('id', 'title', 'save_path', 'description')
     list_per_page = 20
     verbose_name = '配置'
