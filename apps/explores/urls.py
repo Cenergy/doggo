@@ -16,4 +16,5 @@ urlpatterns = [
     url(r'^poibyregion/', csrf_exempt(views.POIbyRegion.as_view()), name="imgupload"),
     url(r'^bb/', csrf_exempt(views.Test.as_view()), name="test"),
     path(r'github/<username>', csrf_exempt(views.GithubContritutions.as_view())),
+    path(r'config/<id>', csrf_exempt(views.WebsiteConfig.as_view())),
 ]
