@@ -7,7 +7,7 @@
     "dev": "python manage.py runserver",
     "makemigrations": "python manage.py makemigrations",
     "migrate": "python manage.py migrate",
-    "addRemote": "git remote add aigisss root@aigisss:/home/git/doggo",
+    "addRemote": "git remote add aigisss root@101.35.248.140:/home/git/doggo",
     "pushRemote": "git push --all aigisss"
   },
   "repository": {
