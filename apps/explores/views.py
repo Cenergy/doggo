@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 from aip import AipOcr
 from rest_framework import status
+from datetime import datetime
 
 
 from django.http import HttpResponse
@@ -468,18 +469,30 @@ def list_split(items, n):
 
 
 def getGithubData(name):
-    gitpage = requests.get("https://hub.fastgit.xyz/" + name)
+    # gitpage = requests.get("https://github.com/" + name)
+    gitpage = requests.get("https://github.com/users/Cenergy/contributions")
     data = gitpage.text
-    datadatereg = re.compile(r'data-date="(.*?)" data-level')
-    datacountreg = re.compile(r'data-count="(.*?)" data-date')
+    datadatereg = re.compile(r'data-date="(.*?)" id="contribution-day')
+    datacountreg = re.compile(r'position-absolute">(.*?) contribution')
     datadate = datadatereg.findall(data)
     datacount = datacountreg.findall(data)
-    datacount = list(map(int, datacount))
+    datacountResult=[]
+
+    for index, item in enumerate(datacount):
+            if item=='No':
+                datacountResult.append(0)
+            else:
+                datacountResult.append(item)
+
+    datacount = list(map(int, datacountResult))
     contributions = sum(datacount)
     datalist = []
     for index, item in enumerate(datadate):
-        itemlist = {"date": item, "count": datacount[index]}
-        datalist.append(itemlist)
+        datalist.append({"date": item, "count": datacount[index]})
+
+    # 时间排序
+    # 按照'date'字段升序排序
+    datalist = sorted(datalist, key=lambda dt: datetime.strptime(dt['date'], "%Y-%m-%d"))
     datalistsplit = list_split(datalist, 7)
     returndata = {
         "total": contributions,
@@ -491,16 +504,16 @@ def getGithubData(name):
 class GithubContritutions(APIView):
     def get(self, request, username):
         try:
-            now_time = datetime.datetime.now()
-            date_day_string = now_time.strftime('%Y%m%d')
-            cache_key_string = username+'_'+date_day_string
-            is_exist_key = cache.has_key(cache_key_string)
-            if is_exist_key:
-                return Response(cache.get(cache_key_string), status=status.HTTP_200_OK)
-            else:
-                github_data = getGithubData(username)
-                cache.set(cache_key_string, github_data, 60*60*24)
-                return Response(github_data, status=status.HTTP_200_OK)
+            # now_time = datetime.datetime.now()
+            # date_day_string = now_time.strftime('%Y%m%d')
+            # cache_key_string = username+'_'+date_day_string
+            # is_exist_key = cache.has_key(cache_key_string)
+            # if is_exist_key:
+            #     return Response(cache.get(cache_key_string), status=status.HTTP_200_OK)
+            # else:
+            github_data = getGithubData(username)
+            # cache.set(cache_key_string, github_data, 60*60*24)
+            return Response(github_data, status=status.HTTP_200_OK)
             # return Response(getdata(username), status=status.HTTP_200_OK)
         except:
             reginfs = {

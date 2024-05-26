@@ -25,3 +25,6 @@ def delRegImage():
 
 def getGalleryCache():
     requests.get('https://api.aigisss.com/resources/galleryCache/')
+
+def getGithub():
+    requests.get('https://api.aigisss.com/api/github/cenergy')
