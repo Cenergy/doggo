@@ -19,6 +19,7 @@ from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.core.cache import cache
+from .models import WebSiteConfig
 
 
 from doggo.settings import BAIDU_APP_ID, BAIDU_API_KEY, BAIDU_SECRET_KEY, BAIDU_MAP_KEY
@@ -521,4 +522,18 @@ class GithubContritutions(APIView):
                 "message": "failed",
                 "data": "请求失败"
             }
+        return Response(reginfs, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class WebsiteConfig(APIView):
+    def get(self, request, id):
+        try:
+            entry = WebSiteConfig.objects.get(id=id)
+            reginfs = {
+                "on": entry.is_on,
+                "config": entry.data,
+            }
+            return Response(reginfs, status=status.HTTP_200_OK)
+        except:
+            reginfs = {}
         return Response(reginfs, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
