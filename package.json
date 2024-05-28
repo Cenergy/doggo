@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "dev": "python manage.py runserver",
-    "makemigrations": "python manage.py makemigrations",
-    "migrate": "python manage.py migrate",
-    "addRemote": "git remote add aigisss root@aigisss:/home/git/doggo",
-    "pushRemote": "git push --all aigisss"
+    "makemigrations": "python3 manage.py makemigrations",
+    "migrate": "python3 manage.py migrate",
+    "addRemote": "git remote add gishai root@122.51.49.230:/home/git/doggo",
+    "pushRemote": "git push --all gishai"
   },
   "repository": {
     "type": "git",
